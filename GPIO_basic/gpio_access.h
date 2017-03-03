@@ -10,6 +10,7 @@
 #define OUT		1
 #define LOW		0
 #define HIGH		1
+#define UNREAD		-1
 
 #define RAW_STR_WRITE		"WRITE"
 #define RAW_STR_READ		"READ"
@@ -18,7 +19,7 @@
 #define RAW_STR_LOW		"LOW"
 
 #define PIN_NUMBER_DEMARKER	","
-#define PIN_DIRECTION_DEMARKER	";"
+#define PIN_DIRECTION_DEMARKER	"="
 #define PIN_TO_WRITE_DEMARKER	"\0"
 
 #define PIN_COUNT_INDEX	1 // which index within argv contains the number of pins affected by this request
@@ -43,6 +44,14 @@
 #define READ_ERROR(x)		"On read:  Failed to read value for pin %d\n",x
 #define WRITE_OPEN_ERROR(x)	"On write:  Failed to open path for pin %d\n",x
 #define WRITE_ERROR(x)		"On write:  Failed to write to pin %d\n",x
+
+struct Pin_Request
+{
+	int pin_number, direction, value;
+};
+
+int configurePinDirections( const int, struct Pin_Request* );
+int executePinRequests( const int, struct Pin_Request* );
 
 int writePin(const int, const int);
 

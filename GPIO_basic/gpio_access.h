@@ -12,6 +12,8 @@
 #define HIGH		1
 #define UNREAD		-1
 
+#define STD_BUFFER_LENGTH	20
+
 #define RAW_STR_WRITE		"WRITE"
 #define RAW_STR_READ		"READ"
 
@@ -47,7 +49,7 @@
 
 struct Pin_Request
 {
-	int pin_number, direction, value;
+	int pin_number, direction, value, file_descriptor;
 };
 
 int configurePinDirections( const int, struct Pin_Request* );

@@ -1,5 +1,33 @@
 #include "gpio_access.h"
 
+int configurePinDirections( const int n_requests, struct Pin_Request* requests )
+{
+	int i;
+	for( i = 0; i < n_requests; i++ )
+	{
+		struct Pin_Request current = requests[i];
+
+		char buffer [ STD_BUFFER_LENGTH ];
+
+		int bytes_written;
+
+		
+	}
+
+	return 0;
+}
+
+int executePinRequests( const int n_requests, struct Pin_Request* requests )
+{
+	int i;
+	for( i = 0; i < n_requests; i++ )
+	{
+		
+	}
+
+	return 0;
+}
+
 int writePin( const int pinNumber, const int value )
 {
 printf( "Writing %d to pin %d", value, pinNumber );

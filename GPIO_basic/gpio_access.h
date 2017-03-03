@@ -11,7 +11,15 @@
 #define LOW		0
 #define HIGH		1
 
-#define RAW_
+#define RAW_STR_WRITE		"WRITE"
+#define RAW_STR_READ		"READ"
+
+#define RAW_STR_HIGH		"HIGH"
+#define RAW_STR_LOW		"LOW"
+
+#define PIN_NUMBER_DEMARKER	","
+#define PIN_DIRECTION_DEMARKER	";"
+#define PIN_TO_WRITE_DEMARKER	"\0"
 
 #define PIN_COUNT_INDEX	1 // which index within argv contains the number of pins affected by this request
 #define MAX_PIN_COUNT	29	// 40 pins, 9 are constant voltage (2 each 3.3VDC and 5VDC, 5 0VDC/Ground), 2 are reserved)

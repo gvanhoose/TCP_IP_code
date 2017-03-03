@@ -71,9 +71,9 @@ int main( int argc, char* argv [] )
 		rawWriteValue = strtok( NULL, PIN_TO_WRITE_DEMARKER );
 
 		if(
-			( strcmp( RAW_STR_DIR_OUT, rawDirection ) == 0 && rawWriteValue == NULL )	// rawWriteValue cannot be NULL if rawDirection contains OUT
+			( strcmp( RAW_STR_WRITE, rawDirection ) == 0 && rawWriteValue == NULL )	// rawWriteValue cannot be NULL if rawDirection contains OUT
 			||
-			( strcmp( RAW_STR_DIR_IN,  rawDirection ) == 0 && rawWriteValue != NULL )	// rawWriteValue mus be NULL if rawDirection is IN
+			( strcmp( RAW_STR_READ,  rawDirection ) == 0 && rawWriteValue != NULL )	// rawWriteValue mus be NULL if rawDirection is IN
 		)	// rawDirection may contain erroneous information, so these calls to strcmp are not reliable to that end just yet.
 		{
 //			log_error( "Write value specified with request to Read, or no Write value specified with request to Write" );

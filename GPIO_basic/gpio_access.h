@@ -11,6 +11,8 @@
 #define LOW		0
 #define HIGH		1
 
+#define RAW_
+
 #define PIN_COUNT_INDEX	1 // which index within argv contains the number of pins affected by this request
 #define MAX_PIN_COUNT	29	// 40 pins, 9 are constant voltage (2 each 3.3VDC and 5VDC, 5 0VDC/Ground), 2 are reserved)
 #define MAX_PIN_NUMBER	26
@@ -34,4 +36,4 @@
 #define WRITE_OPEN_ERROR(x)	"On write:  Failed to open path for pin %d\n",x
 #define WRITE_ERROR(x)		"On write:  Failed to write to pin %d\n",x
 
-int extractPinNumber( char*, int);
+int writePin(const int, const int);

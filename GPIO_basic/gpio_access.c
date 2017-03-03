@@ -1,214 +1,148 @@
 #include "gpio_access.h"
 
-void dbug()
+int writePin( const int pinNumber, const int value )
 {
-	printf( "Reaching\n" );
-}
-
-/**
- * takes an string arg in
- *	number , string ; format
- * and returns the int value of number
- * returns LBAD_PIN_ARG on error
- *	if index of ',' is greater than 3, is bad pin arg
- *	if index of ',' is 0, is bad pin arg
- */
-int extractPinNumber( char* raw, int rawLength )
-{
-	char substring [2];	// guaranteed to be some number between 0-40, hence only two digits are required to represent it.
-	char* end_substr = substring;
-
-	char current;
-
-	if( *raw < 0x30 || *raw > 0x39 )	// checks for non-numerical characters at the start of the arg
-	{
-//		log_error( "Invalid gpio pin request" );
-		return LBAD_PIN_ARG;
-	}
-
-	while( (current = *(raw++)) != ',' )
-	{
-		if( current < 0x30 || current > 0x39 || (end_substr - substring >= 2) )	// checks for non-numerical characters and pin numbers that are longer than they should be
-		{
-
-//			log_error("Bad gpio pin request");
-			return LBAD_PIN_ARG;
-		}
-		*(end_substr++) = current;
-	}
-
-	return atoi( substring );	// safe to run this now because substring is guaranteed to consist of chars 0x30 - 0x39
-}
-
-/**
- * iterates over the raw input between the ',' and ';'
- * on success
- *	returns IN or OUT
- * on error
- *	returns LBAD_ARG
- *	caller must handle this error from that point on
- */
-int extractDirection( char* raw, int raw_length )
-{
-
-
-	char* output = raw;
-
-	raw--;	// this is so preincrementing will work, which will be necessary later!
-
-	int commaIndex;
-
-	while( *(++raw) != ',' && (commaIndex = ( raw - output)) < raw_length);
-
-	if( ( commaIndex != 1 && commaIndex != 2 ) || commaIndex >= raw_length )	// 2 is the lowest index possible for the ',' in correct input; if raw - output equals or is greater than raw_length, then no comma was found
-	{
-//		log_error( "Incorrect argument format" );
-		return LBAD_ARG;
-	}
-// at this point, the comma has been located and is in the correct index (1 or 2)
-
-	char substring [] = "\0\0\0\0\0";
-
-	int semicolonIndex;
-
-	while( *(raw++) != ';' && ( semicolonIndex = (raw - output) ) < raw_length
+	
 
 	return 0;
 }
+
 /**
  * args for this program shall proceed as follows:
  *	argv[i]		description			example
  *
  *	argv[0]		name of executable		"gpio_acces"
  *	argv[1]		number of pins being accessed	"4"
- *	argv[2]		pin#, direction, value		"1,OUT,HIGH"
- *	argv[3]		pin#, direction, value		"2,IN,"
- *	argv[4]		pin#, direction, value		"3,OUT,LOW"
+ *	argv[2]		pin#, direction, value		"1,OUT;HIGH"
+ *	argv[3]		pin#, direction, value		"2,IN;"
+ *	argv[4]		pin#, direction, value		"3,OUT;LOW"
+ * (has to be readable in the logs)
  */
 int main( int argc, char* argv [] )
 {
 
 /*
  * commented out for testing only!
- *
-	if( argc < 3 )
+ */
+	if( argc < 3 )		// there must be at least 3 incoming args!
 	{
 //		log_error("Incorrect number of args for gpio_access");	// set up error logging for this
 		exit(PROGRAM_ERROR);
 	}
 
 	int pin_count;
-	if( (pin_count = atoi( argv[ PIN_COUNT_INDEX ] )) == 0 )
+	if( (pin_count = atoi( argv[ PIN_COUNT_INDEX ] )) == 0 )	// if pinCount is zero, the following loop will not run and no pins will be updated!
 	{
 //		log_error("No pin count provided.");
 		exit(PROGRAM_ERROR);
 	}
 // at this point, pin count is determined to be nonzero
-	if( pin_count < 0 || pin_count > MAX_PIN_COUNT )
+	if( pin_count < 0 || pin_count > MAX_PIN_COUNT )		// checks for too high of a pin count (in reality, pin_count should be unsigned, but checking for negative values works just the same since valid values of pin_count are extremely low)
 	{
 //		log_error("Pin count is too high.");
 		exit(PROGRAM_ERROR);
 	}
 // at this point, pin count is determined to be an allowable number
-
+// now to service the pin requests.
 	int i;
 	for( i = PIN_COUNT_INDEX + 1; i < pin_count; i++ )
 	{
 		char* current = argv[ i ];
+		char* rawPinNumber;
+		char* rawDirection;
+		char* rawWriteValue;
 
-		int cur_length;
+		int pinNumber, toWrite;
 
-		int pinNumber = extractPinNumber( current , (cur_length = strlen( current )) );
-
-		if( pinNumber < 0 )
+		// get the pin number from current, if it isn't between current[0] and the ',', NULL is returned
+		if( (rawPinNumber = strtok( current, PIN_NUMBER_DEMARKER )) == NULL )
 		{
-//			log_error("bad pin number, cannot proceed with GPIO request" );
-			exit(PROGRAM_ERROR);
+//			log_error( "Invalid argument, missing pin number or incorrectly formatted." );
+			exit( PROGRAM_ERROR );
 		}
 
-//		current += ( pinNumber >= 10 )? 2:1;
+		// get the direction of the pin from current; if it isn't between ',' and ';' NULL is returned
+		if( (rawDirection = strtok( NULL, PIN_DIRECTION_DEMARKER )) == NULL )
+		{
+//			log_error( "Invalid argument, missing pin number or incorrectly formatted." );
+			exit( PROGRAM_ERROR );
+		}
 
-		char* direction = extractDirection( current, cur_length );
+		// get the write value of the pin from current; it may not be there so testing needs to be a little more complex
+		rawWriteValue = strtok( NULL, PIN_TO_WRITE_DEMARKER );
 
-		// TODO:  set up a function to extract the pin direction and another to extract the value to be thus written, if applicable
+		if(
+			( strcmp( RAW_STR_WRITE, rawDirection ) == 0 && rawWriteValue == NULL )	// rawWriteValue cannot be NULL if rawDirection contains OUT
+			||
+			( strcmp( RAW_STR_READ,  rawDirection ) == 0 && rawWriteValue != NULL )	// rawWriteValue mus be NULL if rawDirection is IN
+		)	// rawDirection may contain erroneous information, so these calls to strcmp are not reliable to that end just yet.
+		{
+//			log_error( "Write value specified with request to Read, or no Write value specified with request to Write" );
+			exit( PROGRAM_ERROR );
+		}
+
+		if( *rawPinNumber == '0' &&  strlen( rawPinNumber ) == 1 )	// important to differentiate between a request for pin 0 and a error return from "int atoi(char*)"
+		{
+			pinNumber = 0;
+		}
+		else
+		{
+			if( (pinNumber = atoi( rawPinNumber )) == 0 )
+			{
+//				log_error( "Invalid pin number." );		// because rawPinNumber was tested on whether it specified pin 0, the only way the conditional could be true is if atoi returned zero, meaning rawPinNumber contained a non-numeric char
+				exit( PROGRAM_ERROR );
+			}
+			if( pinNumber < 0 || pinNumber > MAX_PIN_NUMBER )	// also test for specific pin numbers that are either too high or low
+			{
+//				log_error( "Invalid pin number. (must be a pin between 0-29)" );
+				exit( PROGRAM_ERROR );
+			}
+		}
+// at this point, pinNumber is guaranteed to identify a specific, valid pin on the RPi
+
+// now to check rawDirection and rawWriteValue
+
+		int dirComparedToWrite;
+
+		if(
+			(dirComparedToWrite = strcmp( RAW_STR_WRITE, rawDirection ) != 0)
+			&&
+			strcmp( RAW_STR_READ, rawDirection ) != 0
+		  )	// ensures rawDirection contains either "READ" or "WRITE" and nothing else!
+		{
+//			log_error( "Arg does not specify read or write properly." );
+			exit( PROGRAM_ERROR );
+		}
+
+		if( dirComparedToWrite )		// almost-guaranteed to be a read if conditional is true
+		{
+			if( rawWriteValue != NULL )	// if 
+			{
+//				log_error( "Write value not left blank.  Unknown if intent was to read from the pin or write to that pin." );
+				exit( PROGRAM_ERROR );
+			}
+			// TODO:  code to read from pins goes here.
+			// NB:  The current scope of the project does not require any reading from pins.
+			continue;
+		}
+// at this point, almost-guaranteed to have a write
+
+		if( rawWriteValue == NULL )
+		{
+//			log_error( "Write value is not specified.  Unknown if intent was to write a value to a pin or to read from that pin" );
+			exit( PROGRAM_ERROR );
+		}
+
+		toWrite = ( strcmp( RAW_STR_HIGH, rawToWrite ) == 0 )? HIGH : ( strcmp( RAW_STR_LOW, rawToWrite ) == 0 )? LOW : -1;
+
+		if( toWrite < 0 )
+		{
+//			log_error( "Invalid write value." );
+			exit( PROGRAM_ERROR );
+		}
+
+		writePin( pinNumber, toWrite );
 	}
- *
- *
- */
 
-/*
- * testing for "int extractDirection( char*, int );"
- */
-	char tester [] = "21,IN;";		// correct input
-//	char tester [] = "21,endTheFed;";
-//	char tester [] = "IN,21;HIGH";
-//	char tester [] = ";";
-//	char tester [] = ",";
-//	char tester [] = "";
-//	char tester [] = ",;";
-//	char tester [] = ";,";
-//	char tester [] = "21,;HIGH";
-//	char tester [] = "21:,IN";
-//	char tester [] = ",IN;";
-//	char tester [] = "15,OUT;HIGH";		// correct input
-//	char tester [] = "15;OUT,HIGH";
-//	char tester [] = "15,artificialInflationIsTheftAlso;HIGH";
-//	char tester [] = "OUT,15;HIGH";
-//	char tester [] = "OUT;15,HIGH";
-//	char tester [] = "HIGH,15;OUT";
-//	char tester [] = "HIGH;15,OUT";
-//	char tester [] = "HIGH,OUT;15";
-//	char tester [] = "HIGH;OUT,15";
-//	char tester [] = "15;OUT;HIGH";
-//	char tester [] = "15,OUT,HIGH";
-//	char tester [] = "15,out;HIGH";
-/*
- *
- */
-
-/*
- * testing for "int extractPinNumber( char*, int );"
- *	all tests passed!
- *
-//	char tester [] = "3953,Hello;world";
-//	char tester [] = "320,Hello;world";	// did not work; update:  fixed this problem!
-//	char tester [] = "1;Hello,world";
-//	char tester [] = ";";
-//	char tester [] = ",";
-//	char tester [] = "Hello,;world";
-//	char tester [] = "a,Hello;world";
-	char tester [] = "12,Hello;world";	// correct input case
-//	char tester [] = "";
-//	char tester [] = "1Hello;world";
-//	char tester [] = "1 ,Hello;world";
-//	char tester [] = ",Hello;world";
-
-	int n, tLen = strlen( tester );
-
-	n = extractPinNumber( tester, tLen );
-
-	printf( "%d\n", (n + 1) );
- *
- *
- */
-
-
-
-/*
- * testing to make sure the macros work
- *	they do
- *
-//	printf( ERR_MSG_DIRECTION_PATH(7) );
-
-//	int pin = 8;
-//	printf( ERR_MSG_DIRECTION_PATH(pin) );
-
-//	char msg [] = ERR_MSG_DIRECTION_PATH(pin);
-//	printf( msg );
-
-//	char msg [] = ERR_MSG_SET_DIRECTION(3);
-//	printf( msg );
- *
- */
 	return 0;
 }

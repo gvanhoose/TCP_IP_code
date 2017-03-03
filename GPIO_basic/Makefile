@@ -1,8 +1,11 @@
 all:
 
 gpio:
-	gcc gpio_access.c -o gpio_access
+	gcc gpio_access.c -o test
+
+build_test: gpio
+	rm gpio_access
 
 test: gpio
-	./gpio_access
-	rm gpio_access
+	./test
+	rm test

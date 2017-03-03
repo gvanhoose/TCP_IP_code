@@ -1,8 +1,13 @@
 #include "gpio_access.h"
 
+void dbug()
+{
+	printf( "Reaching" );
+}
+
 int writePin( const int pinNumber, const int value )
 {
-	
+	printf( "Writing %s to pin# %d", (value == HIGH)? "HIGH": (value == LOW)? "LOW" : "ERROR", pinNumber );
 
 	return 0;
 }
@@ -20,10 +25,10 @@ int writePin( const int pinNumber, const int value )
  */
 int main( int argc, char* argv [] )
 {
-
 /*
  * commented out for testing only!
  */
+
 	if( argc < 3 )		// there must be at least 3 incoming args!
 	{
 //		log_error("Incorrect number of args for gpio_access");	// set up error logging for this
@@ -42,6 +47,9 @@ int main( int argc, char* argv [] )
 //		log_error("Pin count is too high.");
 		exit(PROGRAM_ERROR);
 	}
+
+	dbug();
+
 // at this point, pin count is determined to be an allowable number
 // now to service the pin requests.
 	int i;
@@ -133,7 +141,7 @@ int main( int argc, char* argv [] )
 			exit( PROGRAM_ERROR );
 		}
 
-		toWrite = ( strcmp( RAW_STR_HIGH, rawToWrite ) == 0 )? HIGH : ( strcmp( RAW_STR_LOW, rawToWrite ) == 0 )? LOW : -1;
+		toWrite = ( strcmp( RAW_STR_HIGH, rawWriteValue ) == 0 )? HIGH : ( strcmp( RAW_STR_LOW, rawWriteValue ) == 0 )? LOW : -1;
 
 		if( toWrite < 0 )
 		{

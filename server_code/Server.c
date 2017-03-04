@@ -19,7 +19,7 @@
 #include "Server_Log.h"
 #include "Arg_Builder.h"
 
-#define BUFFER_LENGTH 64
+#define BUFFER_LENGTH 128
 #define NULL_CHAR '\0'
 #define DEFAULT_PORT_NUMBER 5000
 #define BACKLOG_MAX 1
@@ -42,7 +42,12 @@
  */
 void dbug()
 {
+/*
+ * shunting any stray calls to dbug()
+ */
 	printf( "Reaching\n" );
+/*
+ */
 }
 
 // TODO:  Program needs to identify and flag invalid arguments.
@@ -68,7 +73,7 @@ void dbug()
  */
 int spawnProcess( char*  arg)
 {
-	printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until proper functionality confirmed to this point!)\n", arg );
+//	printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until proper functionality confirmed to this point!)\n", arg );
 
 	int argLen = strlen( arg ), nargs = get_nargs( arg, argLen );
 
@@ -85,19 +90,25 @@ int spawnProcess( char*  arg)
 
 /*
  * commented-out for testing only!
- *
+ */
 	pid_t currentPID = getpid();
 
 	pid_t returnedPID = fork();
 
 	if( returnedPID  < 0 )
 	{
-		printf( "Fork fail" );
+		logAll( "Fork Failed" );
+//		printf( "Fork fail" );
 		return( LFORK_FAIL );
 	}
 	if( returnedPID == 0 )
 	{
-		wait();		// may not need to wait, but we should take care to avoid the zombie apocalypse.
+		// parent process execution
+		if( wait() != 0)		// may not need to wait, but we should take care to avoid the zombie apocalypse.
+		{
+			logError( "Child did not execute properly" );
+		}
+
 		return 0;	// parent process
 	}
 
@@ -106,16 +117,18 @@ int spawnProcess( char*  arg)
 	pid_t childPID = getpid();
 
 	execv( args[0], args );
+// the following code executes only if there was an error in the spawned process
 
-	log_error( "execv failed while attempting to execute the following:" );
+	logError( "execv failed while attempting to execute the following:" );
 
 	char* errPrint = ("execv failed while attempting to execute:  %s", arg);
 
-	log_error( errPrint );
+	logError( errPrint );
 
-	exit( 0 );
- *
+	exit( LEXECV_FAIL );
+/*
  */
+
 }
 
 /**
@@ -211,20 +224,20 @@ int receiveMessage( int listenerFD, char* target )
 
 	int clientFD;
 
-	printf( "Awaiting message.\n" );
+//	printf( "Awaiting message.\n" );
 
 	if( (clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL )) < 0 )
 	{
 		return LACCEPT_ERROR;
 	}
 
-	printf( "Message received!\n" );
+//	printf( "Message received!\n" );
 
 	// this may require a loop to capture all of the message.
 	int bytesRead;
 	if( (bytesRead = read( clientFD, target, BUFFER_LENGTH - 1 )) < 0 )
 	{
-		printf( "read error\n" );
+//		printf( "read error\n" );
 		return LREAD_ERROR;
 	}
 
@@ -282,6 +295,8 @@ At this point:
 		{
 			perror( "bind error" );
 		}
+
+
 		exit( SYSTEM_ERROR_NUMBER );
 	}
 
@@ -300,6 +315,16 @@ receiveMessage will wait until a client establishes a connection
  *
  */
 
+	char pid_str [25];
+	memset( pid_str, '\0', 25 );
+
+	snprintf( pid_str, 25, "Server PID:  %d\n", getpid() );
+
+	logEvent( pid_str );
+
+
+	printf( "Starting to listen.\n" );
+
 /*
  * commented-out while testing arg-buidling functionality in spawnProcess
  */
@@ -307,6 +332,7 @@ receiveMessage will wait until a client establishes a connection
 
 	while( keepGoing )
 	{
+		printf( "Listening\n" );
 		while( (recReturnValue = receiveMessage( listenerFD, instruction )) >= 0 )
 		{
 			spawnProcess( instruction );
@@ -336,6 +362,10 @@ receiveMessage will wait until a client establishes a connection
 		}
 
 	}
+
+	close( listenerFD );
+
+
  /*
  */
 	return 0;

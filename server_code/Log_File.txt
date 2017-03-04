@@ -20,3 +20,40 @@ Sat Mar  4 09:13:44 2017=new call to "openSocketAndBind".  Result:
 Sat Mar  4 09:13:44 2017=success
 Sat Mar  4 09:14:59 2017=new call to "openSocketAndBind".  Result:
 Sat Mar  4 09:14:59 2017=success
+Sat Mar  4 15:16:44 2017=new call to "openSocketAndBind".  Result:
+Sat Mar  4 15:16:44 2017=success
+Sat Mar  4 15:16:44 2017=Server PID:  1055
+
+Sat Mar  4 15:17:54 2017=new call to "openSocketAndBind".  Result:
+Sat Mar  4 15:17:54 2017=success
+Sat Mar  4 15:17:54 2017=Server PID:  1076
+
+Sat Mar  4 15:21:10 2017=new call to "openSocketAndBind".  Result:
+Sat Mar  4 15:21:10 2017=success
+Sat Mar  4 15:21:10 2017=Server PID:  1085
+
+Sat Mar  4 15:31:15 2017=new call to "openSocketAndBind".  Result:
+Sat Mar  4 15:31:15 2017=bind error
+Sat Mar  4 15:41:44 2017=new call to "openSocketAndBind".  Result:
+Sat Mar  4 15:41:44 2017=success
+Sat Mar  4 15:41:44 2017=Server PID:  1050
+
+Sat Mar  4 15:42:04 2017=new call to "openSocketAndBind".  Result:
+Sat Mar  4 15:42:04 2017=success
+Sat Mar  4 15:42:04 2017=Server PID:  1054
+
+Sat Mar  4 15:46:09 2017=new call to "openSocketAndBind".  Result:
+Sat Mar  4 15:46:09 2017=bind error
+Sat Mar  4 15:47:30 2017=new call to "openSocketAndBind".  Result:
+Sat Mar  4 15:47:30 2017=bind error
+Sat Mar  4 16:05:34 2017=new call to "openSocketAndBind".  Result:
+Sat Mar  4 16:05:34 2017=success
+Sat Mar  4 16:05:34 2017=Server PID:  1073
+
+Sat Mar  4 16:06:53 2017=new call to "openSocketAndBind".  Result:
+Sat Mar  4 16:06:53 2017=success
+Sat Mar  4 16:06:53 2017=Server PID:  1074
+
+Sat Mar  4 16:06:59 2017=new call to "openSocketAndBind".  Result:
+Sat Mar  4 16:06:59 2017=success
+Sat Mar  4 16:06:59 2017=Server PID:  1075

@@ -211,11 +211,14 @@ int receiveMessage( int listenerFD, char* target )
 
 	int clientFD;
 
+	printf( "Awaiting message.\n" );
+
 	if( (clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL )) < 0 )
 	{
 		return LACCEPT_ERROR;
 	}
 
+	printf( "Message received!\n" );
 
 	// this may require a loop to capture all of the message.
 	int bytesRead;

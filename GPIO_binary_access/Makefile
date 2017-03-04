@@ -1,7 +1,7 @@
 all:
 
 gpio:
-	gcc gpio_access.c -o pin_access
+	gcc gpio_wrapper.c gpio_access.c -o pin_access
 
 build_test: test
 	rm test
@@ -15,7 +15,7 @@ test_all: test test00 test01 test02 test03 test04 test05 test06 test07 test08 te
 	rm test
 
 test: 
-	gcc gpio_access.c -o test
+	gcc gpio_wrapper.c gpio_access.c -o test
 
 test00:
 	./test 1 5,out=HIGH > test_results.txt

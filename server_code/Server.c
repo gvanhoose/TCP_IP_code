@@ -68,7 +68,7 @@ void dbug()
  */
 int spawnProcess( char*  arg)
 {
-printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until proper functionality confirmed to this point!)\n", arg );
+	printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until proper functionality confirmed to this point!)\n", arg );
 
 	int argLen = strlen( arg ), nargs = get_nargs( arg, argLen );
 

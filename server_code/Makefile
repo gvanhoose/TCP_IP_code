@@ -11,6 +11,8 @@ live: all run
 
 test: all run clean
 
+build_test: all clean
+
 debug:
 	gcc -g Server.c -o server_debug
 	gdb server_debug

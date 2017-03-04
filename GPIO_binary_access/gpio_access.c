@@ -30,14 +30,14 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 		if( (rawPinNumber = strtok( current, PIN_NUMBER_DEMARKER )) == NULL )
 		{
 //			logError( "Invalid argument, missing pin number or incorrectly formatted" );
-			printf( "Invalid argument, missing pin number or incorrectly formatted\n" );
+//			printf( "Invalid argument, missing pin number or incorrectly formatted\n" );
 			return PIN_REQUEST_ERROR( i );
 		}
 
 		if( (rawDirection = strtok( NULL, PIN_DIRECTION_DEMARKER )) == NULL )
 		{
 //			logError( "Invalid argument, missing pin direction or incorrectly formatted" );
-			printf( "Invalid argument, missing pin direction or incorrectly formatted\n" );
+//			printf( "Invalid argument, missing pin direction or incorrectly formatted\n" );
 			return PIN_REQUEST_ERROR( i );
 		}
 
@@ -90,7 +90,7 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 			if( rawWriteValue == NULL )
 			{
 //				log_error( "value not specified on write request" );
-				printf( "write value not given for pin output request\n" );
+//				printf( "write value not given for pin output request\n" );
 				return PIN_REQUEST_ERROR( i );
 			}
 
@@ -100,7 +100,7 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 			if( pinRequests[ i ].value == -1 )
 			{
 //				log_error( "value not correctly specified on write" );
-				printf( "write value for pin was not set correctly\n" );
+//				printf( "write value for pin was not set correctly\n" );
 				return PIN_REQUEST_ERROR( i );
 			}
 
@@ -109,7 +109,7 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 		else
 		{
 //			log_error( "pin direction not accurately specified" );
-			printf( "pin direction not accurately specified\n" );
+//			printf( "pin direction not accurately specified\n" );
 			return PIN_REQUEST_ERROR( i );
 		}
 	}
@@ -128,7 +128,7 @@ int executeRequests( int n_requests, struct Pin_Request requests [] )
 		if( current.dir != INPUT && current.dir != OUTPUT )
 		{
 //			logError( "pin direction not specified" );
-			printf( "direction not specified\n" );
+//			printf( "direction not specified\n" );
 			return PIN_REQUEST_ERROR( i );
 		}
 
@@ -159,7 +159,7 @@ int executeRequests( int n_requests, struct Pin_Request requests [] )
 		{
 			fclose( dir_stream );
 //			logError( "write unsuccessful" );
-			printf( "Write unsuccessful\n" );
+//			printf( "Write unsuccessful\n" );
 			return DIR_WRITE_ERROR;
 		}
 
@@ -167,7 +167,7 @@ int executeRequests( int n_requests, struct Pin_Request requests [] )
 		if( (dClRetVal = fclose( dir_stream )) != EOF && dClRetVal != 0 )
 		{
 //			logError( "direction stream close error" );
-			printf( "Direction stream close error.\n" );
+//			printf( "Direction stream close error.\n" );
 			return DIR_CLOSE_ERROR;
 		}
 
@@ -210,28 +210,28 @@ int executeRequests( int n_requests, struct Pin_Request requests [] )
 			if( fread( val_str, 1, 2, rw_stream ) < 0 )
 			{
 //				logError( "could not read from stream" );
-				printf( "Could not read from stream.\n" );
+//				printf( "Could not read from stream.\n" );
 				return PIN_REQUEST_ERROR( i );
 			}
 			if( val_str[1] != '\0' )
 			{
 //				logError( "non-null-terminating char at end of val_string" );
-				printf( "Warning:  Non-null-terminating character at the end of val_str after read.  Observe and investigate for erratic behavior\n" );
+//				printf( "Warning:  Non-null-terminating character at the end of val_str after read.  Observe and investigate for erratic behavior\n" );
 //				return PIN_REQUEST_ERROR( i );
 			}
 		}
 		else
 		{
 //			logError( "Unknown pin request" );
-			printf( "Unknown or undecipherable pin request encountered.\n" );
+//			printf( "Unknown or undecipherable pin request encountered.\n" );
 			return ERROR;
 		}
 
 		int clReturn;
-		if( (clReturn = fclose( rw_stream ) != 0x0) || (clReturn !=  EOF))
+		if( (clReturn = fclose( rw_stream ) != 0x0) && (clReturn !=  EOF))
 		{
 //			logError( "could not close rw_stream" );
-			printf( "Could not close read-write stream.\n" );
+//			printf( "Could not close read-write stream. (clReturn == 0x%x).\n", clReturn );
 			return PIN_REQUEST_ERROR( i );
 		}
 	}

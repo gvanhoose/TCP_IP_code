@@ -31,16 +31,12 @@ int main( int argc, char* argv [] )
 
 	if( ( buildReturnValue = buildPinRequests( n_requests, argv, requests )) != SUCCESS )
 	{
-		printf( "failed to build pin requests\n" );
+//		printf( "failed to build pin requests\n" );
 		// code to attempt to fix could go here, if you wanted...
 		exit(buildReturnValue);
 	}
 
-//	printf( "completed build requests\n" );
-
-//	printf( "requests[0].dir = \"%d\"\n", requests[0].dir );
-
-	auditPinRequests( requests, n_requests );
+//	auditPinRequests( requests, n_requests );
 
 	exit( executeRequests( n_requests, requests ) );
 

@@ -2,6 +2,12 @@ all: export gpio unexport
 
 clean: clean_export clean_gpio clean_unexport
 
+lamp_and_fan:
+	gcc light_on.c gpio_access.c -o lightOn
+	gcc light_off.c gpio_access.c -o lightOff
+	gcc fan_on.c gpio_access.c -o fanOn
+	gcc fan_off.c gpio_access.c -o fanOff
+
 export:
 	gcc export_pin.c -o exportPin
 clean_export:

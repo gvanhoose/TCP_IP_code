@@ -1,3 +1,4 @@
+RPi_Server
 The purpose of this branch is to create a solution that allows a Raspberry Pi to be used as a server.
 This will allow devices in Tim's room to be controlled wirelessly,
 	through a router,

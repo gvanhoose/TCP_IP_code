@@ -40,6 +40,8 @@ struct Pin_Request
 	int pin_number, value;
 };
 
+int executeRequests( struct Pin_Request[], int );
+
 int buildPinRequests( int, char*[], struct Pin_Request[], int );
 
 #endif	// _GPIO_H_

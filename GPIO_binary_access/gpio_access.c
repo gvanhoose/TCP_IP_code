@@ -115,3 +115,65 @@ int buildPinRequests( int argc, char* argv [], struct Pin_Request pinRequests []
 
 	return SUCCESS;
 }
+
+int executeRequests( int n_requests, struct Pin_Request requests [] )
+{
+	int i;
+	for( i = 0; i < n_requests; i++ )
+	{
+		struct Pin_Request current = requests[ i ];
+
+		// assume they come in exported
+
+		char dirPath [ BUFFER_LENGTH ];
+		char rwPath [ BUFFER_LENGTH ];
+
+		memset( dirPath, '\0', BUFFER_LENGTH );
+		memset( rwPath, '\0', BUFFER_LENGTH );
+
+		int dPath_length = snprintf( dirPath, BUFFER_LENGTH, "/sys/class/gpio/gpio%d/direction", current.pin_number );
+		int rwPath_length = snprintf( rwPath, BUFFER_LENGTH, "/sys/class/gpio/gpio%d/value", current.pin_number );
+
+		FILE* dir_stream;
+		if( (dir_stream = fopen( dirPath, FILE_WRITE )) == NULL)
+		{
+			return DIR_OPEN_ERROR;
+		}
+
+
+
+		if( fwrite( current.direction, 1, strlen( current.direction ), dir_stream ) < 0 )
+		{
+			fclose( dir_stream );
+			return DIR_WRITE_ERROR;
+		}
+
+		if( fclose( dir_stream ) != EOF )
+		{
+			return DIR_CLOSE_ERROR;
+		}
+
+		FILE* rw_stream;
+
+		if( strcmp( OUT_STR, current.direction ) == 0 )
+		{
+			// read
+		}
+		if( strcmp( IN_STR, current.direction ) == 0 )
+		{
+			if( (rw_stream = fopen( rwPath, FILE_WRITE )) == NULL )
+			{
+				return WR_OPEN_ERROR;
+			}
+
+			char val_str [2];
+			snprintf( val_str, 2, "%d", current.value );
+			if( fwrite( val_str, 1, 2, rw_stream ) < 0 )
+			{
+				return WR_WRIE_ERROR;
+			}
+			if( fclose( rw_stream ) != EOF )
+			{
+				return WR_CLOSE_ERROR;
+			}
+}

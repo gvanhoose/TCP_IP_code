@@ -6,6 +6,11 @@ gpio:
 build_test: test
 	rm test
 
+live_test: test
+	./test 1 4,out=LOW
+#	./test 2 4,out=LOW 17,out=HIGH
+	rm test
+
 test_all: test test00 test01 test02 test03 test04 test05 test06 test07 test08 test09 test0A test0B test0C test0D test0E test0F test10
 	rm test
 

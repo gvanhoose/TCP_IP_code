@@ -15,11 +15,14 @@
 #define HIGH		1
 #define UNREAD		-1
 
+#define FILE_WRITE	"w"
+#define FILE_READ	"r"
+
 #define PIN_STRING_MAX_LENGTH	3	// 2 for pin number, 1 for null term
 #define PIN_VALUE_STR_LENGTH	1	// only need 1
 
 
-
+#define GPIO_PATH_BUFFER_LENGTH	40
 
 
 #define RAW_STR_HIGH		"HIGH"
@@ -61,17 +64,16 @@
 
 #define GPIO_INIT_PATH		"/sys/class/gpio/export"
 
-
 #define PIN_IO_BUFFER_LENGTH	2
 
 #define GPIO_RELEASE_PATH	"/sys/class/gpio/unexport"
 //#define GPIO_RELEASE_ERR_MSG	"Failed to open sys/class/gpio/unexport for writing\n"
 
-#define DIRECTION_PATH_FOR_PIN(x)	"/sys/class/gpio/gpio%d/direction\n",x
+//#define DIRECTION_PATH_FOR_PIN(x)	"/sys/class/gpio/gpio%d/direction\n",(int)x
 //#define ERR_MSG_DIRECTION_PATH(x)	"Failed to open path for pin %d\n",x
 //#define ERR_MSG_SET_DIRECTION(x)	"Failed to set direction for pin %d\n",x
 
-#define READ_WRITE_PATH(x)	"/sys/class/gpio/gpio%d/value\n",x
+//#define READ_WRITE_PATH(x)	"/sys/class/gpio/gpio%d/value\n",(int)x
 //#define READ_OPEN_ERROR(x)	"On read:  Failed to open path for pin %d\n",x
 //#define READ_ERROR(x)		"On read:  Failed to read value for pin %d\n",x
 //#define WRITE_OPEN_ERROR(x)	"On write:  Failed to open path for pin %d\n",x

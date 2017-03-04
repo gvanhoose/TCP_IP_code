@@ -1,53 +1,94 @@
 #include "gpio_access.h"
 
+void printOnTens()
+{
+	int i;
+	for( i = 0; i < 40; i++ )
+	{
+		if( (i + 1) % 10 != 1 )
+		{
+			printf( " " );
+			continue;
+		}
+		printf( "|" );
+	}
+	printf( "\n" );
+}
+
+/*
+int GPIO_export( int pinNumber )
+{
+	char pinString [ 3 ];
+
+	int pinStrLength = snprintf( pinString, 3, "%d",pinNumber );
+
+	
+}
+*/
+
 int GPIO_init( const int n_requests, struct Pin_Request* requests )
 {
+	printf( "\nReaching GPIO_init\n" );
+
 	int i;
 	for( i = 0; i < n_requests; i++ )
 	{
 		struct Pin_Request current = requests[i];
 
-		int init_fd, pinStringLength;
-
-		char pinNumberString [ PIN_STRING_MAX_LENGTH ];
-
-		if( (init_fd = open( GPIO_INIT_PATH, O_WRONLY )) < 0 )
+		// open the file descriptor for the export
+		FILE* init_fd = fopen( GPIO_INIT_PATH, FILE_WRITE );
+		if( init_fd == NULL )
 		{
 //			log_error( GPIO_INIT_ERR_MSG );
+			printf( "\topen error\n" );
 			return GPIO_INIT_OPEN_ERROR;
 		}
 
-		pinStringLength = snprintf( pinNumberString, PIN_STRING_MAX_LENGTH, "%d", current.pin_number);
+		char pinNumberString [ PIN_STRING_MAX_LENGTH ];
+//		memset( pinNumberString, '\0', PIN_STRING_MAX_LENGTH );
 
-		if( write( init_fd, pinNumberString, pinStringLength ) < 0 )
+		int pinStringLength = snprintf( pinNumberString, PIN_STRING_MAX_LENGTH, "%d", current.pin_number);
+
+//		int errRetVal;
+		if( fprintf( init_fd, "%d", current.pin_number ) < 0)
+//		if( fwrite( pinNumberString, 1, pinStringLength, init_fd ) != pinStringLength )
+//		if( (errRetVal = fwrite( pinNumberString, 1, pinStringLength, init_fd )) != pinStringLength )
 		{
 //			log_error( "GPIO init write error" );
-			close( init_fd );
+			printf( "\twrite error\n" );
+			fclose( init_fd );
 			return GPIO_INIT_WRITE_ERROR;
 		}
 
-		if( close( init_fd ) != 0 )
+		int clRetVal;
+		if( (clRetVal = fclose( init_fd )) != 0 && clRetVal != EOF )	// need to know if EOF is necessarily a bad thing...
 		{
 //			log_error( "GPIO init close error" );
+//			printf( "\tclose returned: %d\n\tis EOF?\t%s\n", clRetVal, (clRetVal == EOF)? "yes" : "no" );
+			printf( "\tclose error\n" );
 			return GPIO_INIT_CLOSE_ERROR;
 		}
 	}
 
+	printf( "\tSuccessful initialization!\n" );
 	return SUCCESS;
 }
 
 int GPIO_release( int n_requests, struct Pin_Request* requests )
 {
+	printf( "\nReaching GPIO_release\n" );
+
 	int i;
 	for( i = 0; i < n_requests; i++ )
 	{
 		struct Pin_Request current = requests[i];
 
-		int release_fd, pinStrLength;
+		FILE* release_fd = fopen( GPIO_RELEASE_PATH, FILE_WRITE );
+		int pinStrLength;
 
 		char pinString [ PIN_STRING_MAX_LENGTH ];
 
-		if( (release_fd = open( GPIO_RELEASE_PATH, O_WRONLY )) < 0 )
+		if( release_fd == NULL )
 		{
 //			log_error( "GPIO release open error" );
 			return GPIO_RELEASE_OPEN_ERROR;
@@ -55,25 +96,29 @@ int GPIO_release( int n_requests, struct Pin_Request* requests )
 
 		pinStrLength = snprintf( pinString, PIN_STRING_MAX_LENGTH, "%d", current.pin_number );
 
-		if( write( release_fd, pinString, pinStrLength ) < 0 )
+		if( fwrite( pinString, 1, pinStrLength, release_fd ) < 0 )
 		{
 //			log_error( "GPIO release write error" );
-			close( release_fd );
+			fclose( release_fd );
 			return GPIO_RELEASE_WRITE_ERROR;
 		}
 
-		if( close( release_fd ) != 0 )
+		int clRetVal;
+		if( (clRetVal = fclose( release_fd )) != 0 && clRetVal != EOF )
 		{
 //			log_error( "GPIO release close error" );
 			return GPIO_RELEASE_CLOSE_ERROR;
 		}
 	}
 
+	printf( "\tSuccessful Release!\n" );
 	return SUCCESS;
 }
 
 int configurePinDirections( const int n_requests, struct Pin_Request* requests )
 {
+	printf( "\nReaching configurePinDirections\n" );
+
 	int i;
 	for( i = 0; i < n_requests; i++ )
 	{
@@ -81,81 +126,112 @@ int configurePinDirections( const int n_requests, struct Pin_Request* requests )
 // check to ensure current is not null!
 //		char buffer [ STD_BUFFER_LENGTH ];
 
-		int direction_fd;//, bytes_written;
+//		FILE* direction_fd;
 
-		if( (direction_fd = open( DIRECTION_PATH_FOR_PIN( current.pin_number ), O_WRONLY )) < 0 );
+		char dirPath [ GPIO_PATH_BUFFER_LENGTH ];
+		memset( dirPath, '\0', GPIO_PATH_BUFFER_LENGTH );
+
+		int pathLength = snprintf( dirPath, GPIO_PATH_BUFFER_LENGTH, "/sys/class/gpio/gpio%d/direction", current.pin_number );
+
+//		printOnTens();
+//		printf( "%s\n", dirPath );
+//		printf( "pathLength = %d\n", pathLength);
+
+//		FILE* direction_fd = fopen( "/sys/class/gpio/gpio4/direction", FILE_WRITE );
+		FILE* direction_fd = fopen( dirPath, FILE_WRITE );
+
+		if( direction_fd == NULL )
 		{
 //			log_error( "Unable to access file descriptor for direction path" );
-println( "configurePinDirection fail on open" );
-			return( DIRECTION_OPEN_ERROR );	// \_ pick one
-//			continue;			// /	or allow caller to choose... maybe...
+//			printf( "\tdirection_fd == 0x%x\n", direction_fd );
+//			printf( "\tis direction_fd null? %s\n", (direction_fd == NULL)? "yes":"no" );
+			printf( "\tfail on open\n" );
+			return( DIRECTION_OPEN_ERROR );
 		}
 
-		if( write( direction_fd, current.direction, strlen(current.direction) ) < 0 )
+		if( fwrite( current.direction, 1, strlen(current.direction) + 1, direction_fd ) < 0 )
 		{
 //			log_error( "Unable to set direction" );
-println( "configurePinDirection fail on write" );
-			close( direction_fd );
+			printf( "\tfail on write\n" );
+			fclose( direction_fd );
 			return( DIRECTION_WRITE_ERROR );
 //			continue;
 		}
 
-		if( close( direction_fd ) != 0 )
+		int clRetVal;
+		if( (clRetVal = fclose( direction_fd )) != 0 && clRetVal != EOF )
 		{
 //			log_error( "Unable to close pin directioin location" );
+			printf( "\tfail on close\n" );
 			return( DIRECTION_CLOSE_ERROR );
 //			continue;
 		}
 	}
+
+	printf( "\tSuccessful direction setting!\n" );
 
 	return 0;
 }
 
 int executePinRequests( const int n_requests, struct Pin_Request* requests )
 {
+	printf( "\nReaching executePinRequests\n" );
+
 	int i;
 	for( i = 0; i < n_requests; i++ )
 	{
+
 		struct Pin_Request current = requests[i];
 
-		char file_buffer [ PIN_VALUE_STR_LENGTH ];
-		memset( file_buffer, '\0', PIN_VALUE_STR_LENGTH );
+//		memset( file_buffer, '\0', PIN_VALUE_STR_LENGTH );
 
-		int
-			write_fd,
-			read_eor_write = (strcmp( IN, current.direction))? O_WRONLY : O_RDONLY
-			;
-		if( (write_fd = open( READ_WRITE_PATH(current.pin_number), read_eor_write )) < 0 )
+		char* read_eor_write = (strcmp( IN, current.direction))? FILE_WRITE : FILE_READ;
+
+		char rwPath [ GPIO_PATH_BUFFER_LENGTH ];
+//		memset( rwPath, '\0', 35 );
+
+		int rwStrLength = snprintf( rwPath, GPIO_PATH_BUFFER_LENGTH, "/sys/class/gpio/gpio%d/value",current.pin_number );
+
+		FILE* write_fd = fopen( rwPath, read_eor_write );
+
+		if( write_fd == NULL )
 		{
 //			log_error( "failed to open pin filepath for read or write request" );
+			printf( "\tfail on open\n" );
 			return( PIN_RW_OPEN_ERROR );
-//			continue;	// testing only!
 		}
 
-		if( read_eor_write == O_WRONLY )
+//		printf( "\tread or write?  %s\n", read_eor_write );
+
+		char value_buffer [ 2 ];
+
+		if( strcmp( read_eor_write, FILE_WRITE ) == 0 )
 		{
-//			file_buffer[0] = current.value | 0x30;
-			int pinStrLength = snprintf( file_buffer, PIN_VALUE_STR_LENGTH, "%d", current.value );
-			
-			if( write( write_fd, file_buffer, PIN_VALUE_STR_LENGTH ) < 0 )
+			int pinStrLength = snprintf( value_buffer, 2, "%s", current.value? "1":"0" );
+
+//			printf( "\thigh or low?  %s\n", value_buffer );
+//			printf( "\tcurrent.value = %d\n", current.value );
+
+			if( fwrite( value_buffer, 1, pinStrLength, write_fd ) < 0 )
 			{
-				close( write_fd );
+				fclose( write_fd );
 //				log_error( "failed to write a value to a pin" );
+				printf( "\tfail on write\n" );
 				return ( PIN_WRITE_ERROR );
-//				continue;	// testing only!
 			}
 		}
-		else if( read_eor_write == O_RDONLY )
+		else if( strcmp( read_eor_write, FILE_READ ) == 0 )
 		{
-			
-			if( read( write_fd, file_buffer, PIN_VALUE_STR_LENGTH ) < 0 )
+
+			if( fread( value_buffer, 1, PIN_VALUE_STR_LENGTH, write_fd ) < 0 )
 			{
-				close( write_fd );
+				fclose( write_fd );
 //				log_error( "failed to read a value from a pin" );
+				printf( "\tfail on read\n" );
 				return( PIN_READ_ERROR );
 //				continue;
 			}
-			current.value = atoi( file_buffer );
+			current.value = atoi( value_buffer );
 		}
 		else
 		{
@@ -165,19 +241,24 @@ int executePinRequests( const int n_requests, struct Pin_Request* requests )
  * if the program is as well-tested and planned as I hope, this scope should never execute.
  *	if this scope does execute, then there is a problem in parsing args during this program's initial call!
  */
-			close( write_fd );
+			fclose( write_fd );
 //			log_error( "unkown request -- not read nor write.  Check to make sure improper arguments are identified" );
+			printf( "\tfail on unknown request\n" );
 			return( UNKNOWN_PIN_REQUEST );
 		}
 
-		if( close( write_fd ) != 0 )
+		int clRetVal;
+		if( (clRetVal = fclose( write_fd )) != 0 && clRetVal != EOF )
 		{
 //			log_error( "failed to close pin filepath after read or write" );
+			printf( "\tfail on close\n" );
 			return ( PIN_CLOSE_ERROR );
 //			continue;
 		}
 
 	}
+
+	printf( "\tSuccessful pin execution!\n" );
 
 	return SUCCESS;
 }
@@ -370,26 +451,32 @@ println( "direction does not accurately specify \"in\" or \"out\"" );
 
 	}
 
-	if( GPIO_init( pin_count, pinRequests ) != 0 )
-	{
-//		log_error( "GPIO was not successfully initialized for these requests" );
-		exit( GPIO_INIT_FAIL );
-	}
+println( "About to start actual GPIO access" );
+
+//	if( GPIO_init( pin_count, pinRequests ) != 0 )
+//	{
+////		log_error( "GPIO was not successfully initialized for these requests" );
+//		exit( GPIO_INIT_FAIL );
+//	}
 	if( configurePinDirections( pin_count, pinRequests ) != 0 )
 	{
+		GPIO_release( pin_count, pinRequests );
 //		log_error( "GPIO directions were not successfully set" );
 		exit( GPIO_DIR_CONFIG_FAIL );
 	}
 	if( executePinRequests( pin_count, pinRequests ) != 0 )
 	{
+		GPIO_release( pin_count, pinRequests );
 //		log_error( "GPIO could not execute these pin requests" );
 		exit( GPIO_EXEC_PIN_FAIL );
 	}
-	if( GPIO_release( pin_count, pinRequests ) != 0 )
-	{
-//		log_error( "GPIO could not release pins after executing pin requests" );
-		exit( GPIO_RELEASE_FAIL );
-	}
+//	if( GPIO_release( pin_count, pinRequests ) != 0 )
+//	{
+////		log_error( "GPIO could not release pins after executing pin requests" );
+//		exit( GPIO_RELEASE_FAIL );
+//	}
+
+println( "Concluded actual GPIO access" );
 
 	return SUCCESS;
 }

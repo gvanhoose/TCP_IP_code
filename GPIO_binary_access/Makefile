@@ -1,13 +1,21 @@
-all:
+all: export gpio unexport
+
+clean: clean_export clean_gpio clean_unexport
 
 export:
 	gcc export_pin.c -o exportPin
+clean_export:
+	rm exportPin
 
 unexport:
 	gcc unexport_pin.c -o unexportPin
+clean_unexport:
+	rm unexportPin
 
 gpio:
 	gcc gpio_wrapper.c gpio_access.c -o pin_access
+clean_gpio:
+	rm pin_access
 
 build_test: test
 	rm test

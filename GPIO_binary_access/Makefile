@@ -17,6 +17,9 @@ gpio:
 clean_gpio:
 	rm pin_access
 
+stress_test: gpio
+	./pin_access 4,out=HIGH 4,out=LOW 4,out=HIGH 4,out=LOW 4,out=HIGH 4,out=LOW 4,out=HIGH 4,out=LOW 4,out=HIGH 4,out=LOW
+
 build_test: test
 	rm test
 

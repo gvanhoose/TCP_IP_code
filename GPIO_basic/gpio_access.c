@@ -115,15 +115,49 @@ int configurePinDirections( const int n_requests, struct Pin_Request* requests )
 //		FILE* direction_fd = fopen( "/sys/class/gpio/gpio4/direction", FILE_WRITE );
 		FILE* direction_fd = fopen( dirPath, FILE_WRITE );
 
+//		int exportAttempts = MAX_EXPORT_ATTEMPTS;
+
+//		while( direction_fd == NULL && exportAttempts-- > 0)
 		if( direction_fd == NULL )
 		{
 //			log_error( "Unable to access file descriptor for direction path" );
 //			printf( "\tdirection_fd == 0x%x\n", direction_fd );
 //			printf( "\tis direction_fd null? %s\n", (direction_fd == NULL)? "yes":"no" );
 			printf( "\tfail on open\n" );
-			return( DIRECTION_OPEN_ERROR );
+			return DIRECTION_OPEN_ERROR;
+
+/*
+ * this probably didn't work because this process has a different file handle from bash
+ *	therefore, using echo to output to a file would have totally different behavior
+ *
+			printf( "\tPin %d has not been exported.  Exporting now\n\tAttempt:  %d of %d\n", current.pin_number, exportAttempts, MAX_EXPORT_ATTEMPTS );
+			char exUnexPath [ GPIO_PATH_BUFFER_LENGTH ];
+
+			// first use exUnexPath to unexport the pin
+			memset( exUnexPath, '\0', GPIO_PATH_BUFFER_LENGTH );
+			snprintf( exUnexPath, GPIO_PATH_BUFFER_LENGTH, "echo %d > /sys/class/gpio/unexport", current.pin_number );
+
+			printf( "about to execute \"%s\"\n", exUnexPath );
+			system( exUnexPath );
+
+			// then use exUnexPath to export the pin
+			memset( exUnexPath, '\0', GPIO_PATH_BUFFER_LENGTH );
+			snprintf( exUnexPath, GPIO_PATH_BUFFER_LENGTH, "echo %d > /sys/class/gpio/export", current.pin_number );
+
+			printf( "about to execute \"%s\"\n", exUnexPath );
+			system( exUnexPath );
+ *
+ */
+
 		}
 
+/*
+		if( exportAttempts <= 0 )
+		{
+//			log_error( "could not open direction path for pin after several attempts" );
+			return DIRECTION_OPEN_ERROR;
+		}
+*/
 		if( fwrite( current.direction, 1, strlen(current.direction) + 1, direction_fd ) < 0 )
 		{
 //			log_error( "Unable to set direction" );
@@ -259,6 +293,8 @@ int executePinRequests( const int n_requests, struct Pin_Request* requests )
  */
 int main( int argc, char* argv [] )
 {
+//	if( system( NULL ) 
+
 	if( strcmp( "./test", argv[ 0 ] ) == 0 )
 	{
 		printf( "============================\nNEW TEST\n" );
@@ -393,11 +429,12 @@ int main( int argc, char* argv [] )
 			if(
 				(isNotLow = strcmp( RAW_STR_LOW, rawWriteValue ) != 0)
 				&&
-				strcmp( RAW_STR_LOW,  rawWriteValue ) != 0
+				strcmp( RAW_STR_HIGH,  rawWriteValue ) != 0
 			  )
 			{
 //				log_error( "write value not correctly specified" );
 				printf( "Write value for pin OUT not correctly specified\n" );
+				printf( "rawWriteValue == \"%s\"\n", rawWriteValue );
 				exit( PROGRAM_ERROR );
 			}
 			pinRequests[ i ].direction = rawDirection;

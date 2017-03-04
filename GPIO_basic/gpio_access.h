@@ -25,6 +25,8 @@
 
 #define GPIO_PATH_BUFFER_LENGTH	40
 
+//#define MAX_EXPORT_ATTEMPTS	5
+
 #define RAW_STR_HIGH		"HIGH"
 #define RAW_STR_LOW		"LOW"
 
@@ -94,7 +96,7 @@ int configurePinDirections( const int, struct Pin_Request* );
  *	const int n_requests		The number of pins being requested for GPIO access
  *	struct Pin_Request* requests	An array of type struct Pin_Request*, which contains all information and space required for reading or writing
  * RETURNS:
- *	SUCCESS			on successful execution
+ *	local int i		the total number of requests that were successfully serviced (shold be equal to n_requests arg)
  *	PIN_RW_OPEN_ERROR	if /sys/class/gpio/gpio#/value cannot be found
  *	PIN_WRITE_ERROR		if the current request's value is not successfully written to the pin
  *	PIN_READ_ERROR		if the specified pin's value cannot be successfully read
@@ -108,9 +110,11 @@ int configurePinDirections( const int, struct Pin_Request* );
  *		All pins specified in these requests must be exported in /sys/class/gpio/export BEFORE this function is called
  * ON SUCCESS:
  *	In the OS:
- *		/sys/class/gpio/gpio# (where # is the pin number) will carry a direction and a value, which can be read from or written to
+ *		/sys/class/gpio/gpio# (where # is the pin number) will carry a /direction and a /value, which can be read from or written to
  *		All file descriptors are disposed within the scope of this function
  *		if a read is performed, the specific pin request in requests will have its value variable updated from UNREAD (-1) to either HIGH (1) or LOW (0)
+ *			it is the duty of the caller to provide a means for this function to relay the pin values back
+ *			suggest having a file for this program to dump input values once they are read
  *	On the hardware:
  *		if a write is performed, the pin specified by the individual request will carry the new output voltage
  *		if a read is performed, the behavior of the pin's voltage may not be predictable, but typical behavior with simple GPIO dictates that its voltage should remain unaffected by any read
@@ -119,7 +123,7 @@ int configurePinDirections( const int, struct Pin_Request* );
  *		Presently, the entire function will be exited.
  *		A solution which attempts to rectify certain errors is in development, which will preserve the program's flow as best as possible without it quitting in the middle of the requests list
  *	On the hardware:
- *		Any GPIO requests which are serviced BEFORE an error is encountered will remain unchanged
+ *		Any GPIO requests which are serviced BEFORE an error is encountered will remain unchanged; similarly, re-running this function with the entire list of pin requests will not affect the output, since they are identical requests
  *		Any GPIO requests which come AFTER an error is encountered remain unserviced, unless a means of correcting errors where possible is implemented
  */
 int executePinRequests( const int, struct Pin_Request* );

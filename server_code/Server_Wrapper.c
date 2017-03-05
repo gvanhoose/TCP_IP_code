@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//#define REBOOT_PI_FILEPATH "/home/pi/On_Startup/
+
 int main()
 {
 	pid_t retPid;
@@ -14,6 +16,8 @@ int main()
 
 	while( 1 )
 	{
+
+
 
 		retPid = fork();
 
@@ -25,11 +29,9 @@ int main()
 		if( retPid != 0 )	// parent code
 		{
 
-//			printf( "Server running on PID %d\n", retPid );
+			printf( "Server running on PID %d\n", retPid );
 
 			wait( &rawExitReturn );
-
-//			if( signal( SIGUSR1, NULL )	// have child send signal on successful termination!
 
 			exitSuccess = ( WIFEXITED( rawExitReturn ) );	// updates waitStatus with an exit code
 
@@ -38,19 +40,31 @@ int main()
 				break;
 			}
 
-			sleep( 120 );
-			continue;
+//			printf( "Server quit unexpectedly.  Attempting to restart\n" );
+			printf( "Server quit unexpectedly.  Rebooting pi\n" );
+
+			system( "sudo shutdown -r now" );	// God help me if this malfunctions
+
+			return 0;	// this should never execute, but the compiler wants it!
+
+//			sleep( 120 );
+
+//			printf( "Server should restart\n" );
+//			continue;
 		}
 
 
 
 		// child code
 
-		char* cmd [2];	// testing with server in background
-//		char* cmd [1];
+//		char* cmd [2];	// testing with server in background
+		char* cmd [1];
 //		cmd[0] = "/home/pi/On_Startup/server";			// path for testing on George's home pi
 		cmd[0] = "/home/pi/Desktop/On_Startup/server";		// path for actual device in Tim's room
-		cmd[1] = "&";
+//		cmd[1] = "&";
+//		cmd[0] = "./server";
+
+//		printf( "Child:\tAbout to execute new server on pid %d\n\tcommand:\t%s\n", getpid(), cmd[0] );
 
 		execv( cmd[0], cmd );
 

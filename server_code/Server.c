@@ -261,6 +261,8 @@ int main( int argc, char* argv[] )
 	logEvent( "  Socket ready" );
 
 	char instruction [BUFFER_LENGTH];	// the buffer which will hold the data sent by the client
+	memset( instruction, '\0', BUFFER_LENGTH );
+
 
 	int recReturnValue;
 
@@ -268,6 +270,9 @@ int main( int argc, char* argv[] )
 
 	while( TRUE )
 	{
+
+		printf( "Preparing to receive message\n\tinstruction contents:\"%s\"\n", instruction );
+
 		// receiveMessage waits for a connection, then populates the buffer named "instruction"
 		if( (recReturnValue = receiveMessage( listenerFD, instruction )) >= 0 )
 		{
@@ -312,6 +317,8 @@ int main( int argc, char* argv[] )
 				}
 			}
 
+			memset( instruction, '\0', instrLen );
+
 			logEvent( "  spawn complete\n===================================================\n" );
 			continue;
 		}
@@ -335,7 +342,7 @@ int main( int argc, char* argv[] )
 			}
 		}
 
-	}
+	}	// listening while(1) loop
 
 	// safely closes the socket such that subsequent executions of this program may use the same port
 	close( listenerFD );

@@ -1,6 +1,10 @@
-all:
-	gcc Server.c Arg_Builder.c Server_Log.c Timestamp.c -o server
+all: wrapper_only server_only
+
+wrapper_only:
 	gcc Server_Wrapper.c -o wrapper
+
+server_only:
+	gcc Server.c Arg_Builder.c Server_Log.c Timestamp.c -o server
 
 clean:
 	rm server

@@ -60,6 +60,8 @@
  */
 int spawnProcess( char*  arg)
 {
+	printf( "Reaching spawn process with %s\n", arg );
+
 	int argLen = strlen( arg ), nargs = get_nargs( arg, argLen );
 
 	char* args [ nargs ];
@@ -101,6 +103,8 @@ int spawnProcess( char*  arg)
 
 	pid_t childPID = getpid();
 
+	printf( "command is \"%s\"\n", args[0] );
+
 	execv( args[0], args );
 
 	// if the following lines executes, then execv failed
@@ -133,7 +137,7 @@ int spawnProcess( char*  arg)
  *	NOTE:
  *		The caller need not worry about setting any values to sockAddr.
  *		This function initializes the entire struct to the relevant values, and sets unused variables to NULL
- *		This function uses the macro DEFAULT_PORT_NUMBER prescribed above.  This may be changed at the programmer's whim or fancy.
+ *		This function uses the macro DEFAULT_PORT_NUMBER defined above.  This may be changed at the programmer's whim or fancy.
  *		Care must be taken to ensure the client has the correct port number when setting up the connection.
  */
 int openSocketAndBind(struct sockaddr_in sockAddr)
@@ -270,7 +274,7 @@ int main( int argc, char* argv[] )
 
 			int instrLen = strlen( instruction );
 
-			instruction[ instrLen -= 2 ] = '\0';	// may need to take this out.  Depends on how the UBTalker client code terminates the data
+//			instruction[ instrLen -= 2 ] = '\0';	// may need to take this out.  Depends on how the UBTalker client code terminates the data
 
 			// if the client send "q", this safely terminates the server such that it can be resumed later.
 			if( (instrLen = strlen( instruction )) == 1 && *instruction == 'q' )

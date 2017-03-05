@@ -97,16 +97,22 @@ int spawnProcess( char*  arg)
 
 	if( returnedPID  < 0 )
 	{
-		logAll( "Fork Failed" );
-//		printf( "Fork fail" );
+//		logAll( "Fork Failed" );
+		printf( "Fork fail" );
 		return( LFORK_FAIL );
 	}
 	if( returnedPID == 0 )
 	{
+
+		printf( "parent waiting\n" );
+
 		// parent process execution
 		if( wait() != 0)		// may not need to wait, but we should take care to avoid the zombie apocalypse.
 		{
-			logError( "Child did not execute properly" );
+
+			printf( "child did not execute properly\n" );
+
+//			logError( "Child did not execute properly" );
 		}
 
 		return 0;	// parent process
@@ -119,11 +125,11 @@ int spawnProcess( char*  arg)
 	execv( args[0], args );
 // the following code executes only if there was an error in the spawned process
 
-	logError( "execv failed while attempting to execute the following:" );
+//	logError( "execv failed while attempting to execute the following:" );
 
 	char* errPrint = ("execv failed while attempting to execute:  %s", arg);
 
-	logError( errPrint );
+//	logError( errPrint );
 
 	exit( LEXECV_FAIL );
 /*
@@ -169,14 +175,17 @@ struct in_addr
 int openSocketAndBind(struct sockaddr_in sockAddr)
 {
 
-	logEvent( "new call to \"openSocketAndBind\".  Result:" );
+//	logEvent( "new call to \"openSocketAndBind\".  Result:" );
+	printf( "in openSocketAndBind(...)\n" );
+
 
 	int listenerFD;
 
 	if( (listenerFD = socket( AF_INET, SOCK_STREAM, 0 )) == SYSTEM_ERROR_NUMBER )
 	{
-		perror( "socket error" );
-		logAll( "socket error" );
+//		perror( "socket error" );
+//		logAll( "socket error" );
+		printf( "socket error\n" );
 		return LSOCKET_ERROR;
 	}
 
@@ -188,12 +197,15 @@ int openSocketAndBind(struct sockaddr_in sockAddr)
 
 	if( bind( listenerFD, (struct sockaddr*) &sockAddr, sizeof( sockAddr ) ) == SYSTEM_ERROR_NUMBER )
 	{
-		perror( "bind error" );
-		logAll( "bind error" );
+//		perror( "bind error" );
+//		logAll( "bind error" );
+		printf( "bind error\n" );
 		return LBIND_ERROR;
 	}
 
-	logEvent( "success" );
+//	logEvent( "success" );
+	printf( "success\n" );
+
 	return listenerFD;
 
 }
@@ -220,6 +232,8 @@ int openSocketAndBind(struct sockaddr_in sockAddr)
 int receiveMessage( int listenerFD, char* target )
 {
 
+	printf( "in receiveMessage(...)\n" );
+
 	listen( listenerFD, BACKLOG_MAX );
 
 	int clientFD;
@@ -228,6 +242,7 @@ int receiveMessage( int listenerFD, char* target )
 
 	if( (clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL )) < 0 )
 	{
+		printf( "accept error\n" );
 		return LACCEPT_ERROR;
 	}
 
@@ -237,9 +252,11 @@ int receiveMessage( int listenerFD, char* target )
 	int bytesRead;
 	if( (bytesRead = read( clientFD, target, BUFFER_LENGTH - 1 )) < 0 )
 	{
-//		printf( "read error\n" );
+		printf( "read error\n" );
 		return LREAD_ERROR;
 	}
+
+	close( clientFD );	// possible bug fix, a missing call?
 
 	target[ bytesRead ] = NULL_CHAR;
 
@@ -260,16 +277,23 @@ int receiveMessage( int listenerFD, char* target )
 
 	if( target[0] == QUIT_CHAR && strlen( target ) == 1 )
 	{
+
+		printf( "quit program(?)\n" );
 		close( clientFD );
 
 		return QUIT_PROGRAM;
 	}
+
+	printf( "success\n" );
 
 	return 0;
 }
 
 int main( int argc, char* argv[] )
 {
+
+	printf( "launching server\n" );
+
 	struct sockaddr_in sockAddr;
 
 	int listenerFD;
@@ -289,11 +313,13 @@ At this point:
 	{
 		if( listenerFD == LSOCKET_ERROR )
 		{
-			perror( "socket error" );
+//			perror( "socket error" );
+			printf( "main:  Socket error\n" );
 		}
 		if( listenerFD == LBIND_ERROR );
 		{
-			perror( "bind error" );
+			printf( "main:  Bind error\n" );
+//			perror( "bind error" );
 		}
 
 
@@ -320,10 +346,10 @@ receiveMessage will wait until a client establishes a connection
 
 	snprintf( pid_str, 25, "Server PID:  %d\n", getpid() );
 
-	logEvent( pid_str );
+//	logEvent( pid_str );
 
 
-	printf( "Starting to listen.\n" );
+	printf( "Starting to listen. %s\n", pid_str );
 
 /*
  * commented-out while testing arg-buidling functionality in spawnProcess
@@ -333,10 +359,21 @@ receiveMessage will wait until a client establishes a connection
 	while( keepGoing )
 	{
 		printf( "Listening\n" );
-		while( (recReturnValue = receiveMessage( listenerFD, instruction )) >= 0 )
+
+		if( (recReturnValue = receiveMessage( listenerFD, instruction )) >= 0 )
 		{
+			printf( "Spawning:  %s\n", instruction );
 			spawnProcess( instruction );
+			continue;
 		}
+
+
+//		while( (recReturnValue = receiveMessage( listenerFD, instruction )) >= 0 )
+//		{
+//			printf( "spawning: %s\n", instruction );
+//
+//			spawnProcess( instruction );
+//		}
 
 		switch( recReturnValue )
 		{

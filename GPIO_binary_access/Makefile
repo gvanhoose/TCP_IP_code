@@ -2,6 +2,20 @@ all: export gpio unexport
 
 clean: clean_export clean_gpio clean_unexport
 
+
+
+toggles:
+	gcc light_toggle.c -o lightToggle
+	gcc fan_toggle.c -o fanToggle
+
+toggles_and_place: toggles
+	mv lightToggle /home/pi/Desktop/On_Startup
+	mv fanToggle /home/pi/Desktop/On_Startup
+
+clean_placed_toggles:
+	rm /home/pi/Desktop/On_Startup/lightToggle
+	rm /home/pi/Desktop/On_Startup/fanToggle
+
 lamp_and_fan:
 	gcc light_on.c gpio_access.c -o lightOn
 	gcc light_off.c gpio_access.c -o lightOff

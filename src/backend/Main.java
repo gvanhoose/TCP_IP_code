@@ -1,10 +1,24 @@
 package backend;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+
 public class Main
 {
 	public static void main(String[] args)
 	{
-		System.out.println( "Hello World!" );
+		try
+		{
+			Client client = new Client();
+		}
+		catch(UnknownHostException e)
+		{
+			e.printStackTrace();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 }

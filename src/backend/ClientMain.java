@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 
-public class Main
+public class ClientMain
 {
 	public static void main(String[] args)
 	{

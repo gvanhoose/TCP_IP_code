@@ -23,6 +23,8 @@ public class Client
 		
 		BufferedReader input = new BufferedReader( new InputStreamReader( s.getInputStream() ) );
 		
+		s.close();	// added by me, because nobody likes a resource leak!
+		
 		print( "BufferedReader created." );
 		
 		String answer = input.readLine();

@@ -1,6 +1,7 @@
 package backend;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.UnknownHostException;
 
 public class Main

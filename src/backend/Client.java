@@ -15,21 +15,20 @@ public class Client
 		
 		String serverAddress = JOptionPane.showInputDialog("Enter IP Address of a machine that is running the date service on port 9090:");
 		
-		print("Given IP address is:  " + serverAddress + "\nAttempting to reach now.");
-		
 		Socket s = new Socket( serverAddress, 9090 );
-		
-		print( "Connecting..." );
 		
 		BufferedReader input = new BufferedReader( new InputStreamReader( s.getInputStream() ) );
 		
-		print( "BufferedReader created." );
+		String answer = "";
 		
-		String answer = input.readLine();
+		while( "q".compareToIgnoreCase(answer) != 0 )
+		{
+			answer = input.readLine();
+						
+			JOptionPane.showMessageDialog( null, answer );
+		}
 		
-		print( "Answer has been read.");
 		
-		JOptionPane.showMessageDialog( null, answer );
 		
 		s.close();	// added by me, because nobody likes a resource leak!
 		

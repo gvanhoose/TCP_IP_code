@@ -6,6 +6,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
+import javax.swing.JOptionPane;
+
 public class Server
 {
 	public Server()
@@ -16,14 +18,24 @@ public class Server
 			
 			try
 			{
+				
+				
 				while( true )
 				{
 					Socket socket = listener.accept();
+					
+					
 					
 					try
 					{
 						PrintWriter out = new PrintWriter( socket.getOutputStream(), true );
 						out.println( new Date().toString() );
+						
+						String greeting = JOptionPane.showInputDialog("Would you like to say anything to the client?");
+						
+						out.println( greeting );
+						
+//						out.println("q");
 						
 					}
 					catch(Exception e)
@@ -31,7 +43,16 @@ public class Server
 						e.printStackTrace();
 						System.out.println( "Doo-wah-ditty-ditty-dum-ditty-doo" );
 					}
+//					keepRunning = (JOptionPane.showInputDialog("Do you wish to send another message?").compareToIgnoreCase("q") != 0);
+					
+					
+					
+					if( JOptionPane.showConfirmDialog(null, "Do you wish to continue?") != 0 )
+					{
+						System.out.println("You chose to close");
 						socket.close();
+						break;
+					}
 				}
 			}
 			catch( Exception e )

@@ -19,6 +19,39 @@
 #define RECEIVE_FORMAT "%s\0"
 #define CONFIRMATION "1"
 
+// TODO:  Program needs to identify and flag invalid arguments.
+//	most of the time this can be solved by merely requesting a retransmit
+//	(especially since the original call (via the TCP_IP socket protocols)
+//	is initiated by pressing a pre-set button
+//	like a particular mouse-event
+int spawnProcess( const char*  arg)
+{
+	pid_t currentPID = getpid();
+
+	pid_t returnedPID = fork();
+
+	if( returnedPID  < 0 )
+	{
+		printf( "Fork fail" );
+		exit( -1 );
+	}
+	if( returnedPID == 0 )
+	{
+		return 0;
+	}
+
+	// program only proceeds to this area IF returned_PID is positive and nonzero
+
+	pid_t childPID = getpid();
+
+	char* exeArgs [1];
+
+	execv( exeArgs[0], exeArgs );
+
+	exit( 0 );
+
+}
+
 int main( int argc, char* argv[] )
 {
 	int listenerFD;
@@ -55,7 +88,9 @@ int main( int argc, char* argv[] )
 	{
 		unsigned int acceptFailCount = ACCEPT_FAIL_MAX;
 
-		while( acceptFailCount-- > 0 && (clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL)) )
+//		if( clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL )
+		while( clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL ) )
+//		while( acceptFailCount-- > 0 && (clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL)) )
 		{
 			printf( "server failed to accept client.\n\t%d attempts remaining.\n", acceptFailCount );
 			perror( "server failed to accept client." );
@@ -77,6 +112,30 @@ int main( int argc, char* argv[] )
 		write( clientFD, receivedInstructions, BUFFER_LENGTH );	// may need strlen( receivedInstructions), depending on how the string is laid out.  (don't want any security holes!)
 
 		close( clientFD );
+
+		spawnProcess( receivedInstructions );
+/*
+ * moved to unobtrusive helper fucntion
+		// thus begins the procedure for calling the program
+		//	specified by the TCP_IP message
+		pid_t current_PID = getpid();
+
+		pid_t returned_PID = fork();
+
+		if( returned_PID < 0 )
+		{
+			printf( "fork fail\n" );
+		}
+		else
+		{
+			if( ret_PID == 0 )
+			{
+				pid_t childPID =  getpid();
+
+
+			}
+ *
+ */
 
 // either fork to a dedicated program that carries out the instructions
 // or write to the GPIO directly from this position.

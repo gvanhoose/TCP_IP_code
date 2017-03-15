@@ -66,28 +66,34 @@ int openSocketAndBind(struct sockaddr_in* p_sockAddr)
 {
 	int listenerFD;
 
+dbug();
+
 	if( (listenerFD = socket( AF_INET, SOCK_STREAM, 0 )) == SYSTEM_ERROR_NUMBER )
 	{
+dbug();
+
 //		perror( "socket error" );
 		return LSOCKET_ERROR;
 	}
 
+	struct sockaddr_in sockAddr = *p_sockAddr;
+
+dbug();
+	memset( p_sockAddr, NULL_CHAR, sizeof( sockAddr ) );	// \_ both cause a bug.
+//	bzero( (char*) sockAddr, sizeof( sockAddr ) );		// /
+
+//printf( "%d\n", sizeof( (char*) sockAddr ) );
+dbug();
+	sockAddr.sin_family = AF_INET;
 //dbug();
-//	memset( (char*) p_sockAddr, NULL_CHAR, sizeof( (char*) p_sockAddr ) );	// \_ both cause a bug.
-//	bzero( (char*) p_sockAddr, sizeof( p_sockAddr ) );		// /
+	sockAddr.sin_addr.s_addr = htonl( INADDR_ANY );
+//dbug();
+	sockAddr.sin_port = htons( DEFAULT_PORT_NUMBER );
+//dbug();
 
-printf( "%d\n", sizeof( (char*) p_sockAddr ) );
-dbug();
-	p_sockAddr->sin_family = AF_INET;
-dbug();
-	p_sockAddr->sin_addr.s_addr = htonl( INADDR_ANY );
-dbug();
-	p_sockAddr->sin_port = htons( DEFAULT_PORT_NUMBER );
-dbug();
-
-	if( bind( listenerFD, (struct sockaddr*) p_sockAddr, sizeof( p_sockAddr ) ) == SYSTEM_ERROR_NUMBER )
+	if( bind( listenerFD, (struct sockaddr*) p_sockAddr, sizeof( sockAddr ) ) == SYSTEM_ERROR_NUMBER )
 	{
-dbug();
+//dbug();
 //		perror( "bind error" );
 		return LBIND_ERROR;
 	}

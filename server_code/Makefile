@@ -4,4 +4,10 @@ all:
 clean:
 	rm server
 
-test: all clean
+run:
+	./server
+
+test: all run clean
+
+debug:
+	gcc -g Server.c -o server_debug

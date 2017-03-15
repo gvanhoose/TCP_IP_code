@@ -83,7 +83,7 @@ int openSocketAndBind(struct sockaddr_in sockAddr)
 //	bzero( (char*) sockAddr, sizeof( sockAddr ) );		// /
 
 //printf( "%d\n", sizeof( (char*) sockAddr ) );
-dbug();
+//dbug();
 	sockAddr.sin_family = AF_INET;
 //dbug();
 	sockAddr.sin_addr.s_addr = htonl( INADDR_ANY );
@@ -105,15 +105,16 @@ dbug();
 
 int receiveMessage( int listenerFD, char* target )
 {
-
+//dbug();
 	listen( listenerFD, BACKLOG_MAX );
-
+//dbug();
 	int clientFD;
 
 //	char receivedInstructions[ BUFFER_LENGTH ];	// passed in by arg "target"
 
+//dbug();	// this executes on run
 	clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL );
-
+//dbug();	// this does not execute on run.  One can only assume it's waiting...
 //	memset( target, NULL_CHAR, BUFFER_LENGTH );
 
 	snprintf( target, BUFFER_LENGTH, RECEIVE_FORMAT );

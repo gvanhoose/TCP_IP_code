@@ -105,9 +105,9 @@ int openSocketAndBind(struct sockaddr_in sockAddr)
 
 int receiveMessage( int listenerFD, char* target )
 {
-//dbug();
+
 	listen( listenerFD, BACKLOG_MAX );
-//dbug();
+
 	int clientFD;
 
 //	char receivedInstructions[ BUFFER_LENGTH ];	// passed in by arg "target"
@@ -117,7 +117,10 @@ int receiveMessage( int listenerFD, char* target )
 //dbug();	// this does not execute on run.  One can only assume it's waiting...
 //	memset( target, NULL_CHAR, BUFFER_LENGTH );
 
-	snprintf( target, BUFFER_LENGTH, RECEIVE_FORMAT );
+// experiment follows:
+//	it compiles just fine!
+	read( listenerFD, target, sizeof( target ) - 1 );
+//	snprintf( target, BUFFER_LENGTH, RECEIVE_FORMAT );	// temporarily commented-out
 
 	if( target[0] == QUIT_CHAR && strlen( target ) == 1 )
 	{

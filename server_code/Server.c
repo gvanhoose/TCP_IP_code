@@ -62,24 +62,24 @@ int spawnProcess( const char*  arg)
 
 }
 
-int openSocketAndBind(struct sockaddr_in* p_sockAddr)
+int openSocketAndBind(struct sockaddr_in sockAddr)
 {
 	int listenerFD;
 
-dbug();
+//dbug();
 
 	if( (listenerFD = socket( AF_INET, SOCK_STREAM, 0 )) == SYSTEM_ERROR_NUMBER )
 	{
-dbug();
+//dbug();
 
 //		perror( "socket error" );
 		return LSOCKET_ERROR;
 	}
 
-	struct sockaddr_in sockAddr = *p_sockAddr;
+//	struct sockaddr_in* p_sockAddr = &sockAddr;
 
-dbug();
-	memset( p_sockAddr, NULL_CHAR, sizeof( sockAddr ) );	// \_ both cause a bug.
+//dbug();
+	memset( (char*) &sockAddr, NULL_CHAR, sizeof( sockAddr ) );	// \_ both cause a bug.
 //	bzero( (char*) sockAddr, sizeof( sockAddr ) );		// /
 
 //printf( "%d\n", sizeof( (char*) sockAddr ) );
@@ -91,7 +91,7 @@ dbug();
 	sockAddr.sin_port = htons( DEFAULT_PORT_NUMBER );
 //dbug();
 
-	if( bind( listenerFD, (struct sockaddr*) p_sockAddr, sizeof( sockAddr ) ) == SYSTEM_ERROR_NUMBER )
+	if( bind( listenerFD, (struct sockaddr*) &sockAddr, sizeof( sockAddr ) ) == SYSTEM_ERROR_NUMBER )
 	{
 //dbug();
 //		perror( "bind error" );
@@ -158,7 +158,12 @@ int main( int argc, char* argv[] )
 //		exit( ERROR_VALUE );
 //	}
 //
-	struct sockaddr_in* p_sockAddr;
+	struct sockaddr_in sockAddr;
+
+//if( p_sockAddr == 0x0 )
+//{
+//dbug();
+//}
 
 	int listenerFD;
 
@@ -174,7 +179,7 @@ int main( int argc, char* argv[] )
 //dbug();
 //	memset( (char*) p_sockAddr, NULL_CHAR, sizeof( p_sockAddr ) );
 //dbug();
-	if( (listenerFD = openSocketAndBind( p_sockAddr )) < 0 )
+	if( (listenerFD = openSocketAndBind( sockAddr )) < 0 )
 	{
 		if( listenerFD == LSOCKET_ERROR )
 		{

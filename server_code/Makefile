@@ -11,3 +11,4 @@ test: all run clean
 
 debug:
 	gcc -g Server.c -o server_debug
+	gdb server_debug

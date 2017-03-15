@@ -1,0 +1,7 @@
+These files should give a good idea of what needs to happen in order to make sockets work.
+They are not intended to be actually used, though you can attempt to use them if you want.  I think the "Another...c" files actually have a few minor compile errors that need to be ironed out.
+
+The main focus for the tablet-based API should be on:
+  1.  Automatically finding the IP address of the Raspberry Pi.
+  2.  Connecting to the Raspberry Pi.
+  3.  Sending a message to the Raspberry Pi. (could be the name of the program that turns the lamp on or off)

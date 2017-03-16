@@ -7,6 +7,8 @@ clean:
 run:
 	./server
 
+live: all run
+
 test: all run clean
 
 debug:

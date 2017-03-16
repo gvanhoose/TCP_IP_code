@@ -19,7 +19,7 @@
 #define RECEIVE_FORMAT "%s\0"
 #define CONFIRMATION "1"
 #define SYSTEM_ERROR_NUMBER -1
-#define LSOCKET_ERROR -1
+#define LSOCKET_ERROR -3
 #define LBIND_ERROR -2
 #define QUIT_PROGRAM -4
 #define QUIT_CHAR 'q'
@@ -36,6 +36,10 @@ void dbug()
 //	like a particular mouse-event
 int spawnProcess( const char*  arg)
 {
+printf( "Reaching process spawn, with directive: \"%s\"\n\t(note:  No fork until proper functionality confirmed to this point!)\n", arg );
+/*
+ * commented-out for testing only!
+ *
 	pid_t currentPID = getpid();
 
 	pid_t returnedPID = fork();
@@ -59,7 +63,8 @@ int spawnProcess( const char*  arg)
 	execv( execArgs[0], execArgs );
 
 	exit( 0 );
-
+ *
+ */
 }
 
 int openSocketAndBind(struct sockaddr_in sockAddr)
@@ -113,13 +118,26 @@ int receiveMessage( int listenerFD, char* target )
 //	char receivedInstructions[ BUFFER_LENGTH ];	// passed in by arg "target"
 
 //dbug();	// this executes on run
+printf( "Ready to receive message!\n" );
 	clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL );
+printf( "Connection established.\n" );
 //dbug();	// this does not execute on run.  One can only assume it's waiting...
 //	memset( target, NULL_CHAR, BUFFER_LENGTH );
 
-// experiment follows:
-//	it compiles just fine!
-	read( listenerFD, target, sizeof( target ) - 1 );
+	// this may require a loop to capture all of the message.
+	int totalBytesRead = read( listenerFD, target, sizeof( target ) - 1 );
+
+	target[ totalBytesRead ] = NULL_CHAR;
+
+//	int totalBytesRead = 0, iterBytesRead = 0;
+//
+//	while( iterBytesRead = read( listenerFD, (target + (totalBytesRead += iterBytesRead)), sizeof( target ) - 1 - totalBytesRead ) )
+//	{
+//		printf( "Reading message\n" );
+//	}
+
+printf( "Message read:  \"%s\"\n", target );
+
 //	snprintf( target, BUFFER_LENGTH, RECEIVE_FORMAT );	// temporarily commented-out
 
 	if( target[0] == QUIT_CHAR && strlen( target ) == 1 )

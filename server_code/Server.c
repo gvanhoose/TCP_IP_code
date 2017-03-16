@@ -23,6 +23,7 @@
 #define LBIND_ERROR -2
 #define QUIT_PROGRAM -4
 #define QUIT_CHAR 'q'
+#define READ_ERROR -5
 
 void dbug()
 {
@@ -36,7 +37,7 @@ void dbug()
 //	like a particular mouse-event
 int spawnProcess( const char*  arg)
 {
-printf( "Reaching process spawn, with directive: \"%s\"\n\t(note:  No fork until proper functionality confirmed to this point!)\n", arg );
+printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until proper functionality confirmed to this point!)\n", arg );
 /*
  * commented-out for testing only!
  *
@@ -118,16 +119,43 @@ int receiveMessage( int listenerFD, char* target )
 //	char receivedInstructions[ BUFFER_LENGTH ];	// passed in by arg "target"
 
 //dbug();	// this executes on run
-printf( "Ready to receive message!\n" );
+//printf( "Ready to receive message!\n" );
 	clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL );
-printf( "Connection established.\n" );
+//printf( "Connection established.\n" );
 //dbug();	// this does not execute on run.  One can only assume it's waiting...
 //	memset( target, NULL_CHAR, BUFFER_LENGTH );
 
-	// this may require a loop to capture all of the message.
-	int totalBytesRead = read( listenerFD, target, sizeof( target ) - 1 );
+//printf( "Size of target buffer:  %d\n", BUFFER_LENGTH );
 
-	target[ totalBytesRead ] = NULL_CHAR;
+
+	// this may require a loop to capture all of the message.
+	int bytesRead;
+	if( (bytesRead = read( clientFD, target, BUFFER_LENGTH - 1 )) < 0 )
+	{
+		printf( "read error\n" );
+		return READ_ERROR;
+	}
+
+	target[ bytesRead ] = NULL_CHAR;
+
+////	int bytesRead = 0;
+
+////	while( (bytesRead = read( clientFD, target, sizeof( target ) - 1)) > 0 )
+////	{
+//		totalBytesRead += iterBytesRead;
+
+////		target[ bytesRead ] = NULL_CHAR;
+//
+//		if( fputs( target, stdout ) == EOF )
+//		{
+//			printf( "fputs error" );
+//		}
+////	}
+
+
+//printf( "Bytes read:  0x%x\n", bytesRead );
+//printf( "Message:  \"%s\"\n", target );
+//	target[ totalBytesRead ] = NULL_CHAR;
 
 //	int totalBytesRead = 0, iterBytesRead = 0;
 //
@@ -136,7 +164,7 @@ printf( "Connection established.\n" );
 //		printf( "Reading message\n" );
 //	}
 
-printf( "Message read:  \"%s\"\n", target );
+//printf( "Message read:  \"%s\"\n", target );
 
 //	snprintf( target, BUFFER_LENGTH, RECEIVE_FORMAT );	// temporarily commented-out
 

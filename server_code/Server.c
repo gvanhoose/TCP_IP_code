@@ -72,39 +72,24 @@ int openSocketAndBind(struct sockaddr_in sockAddr)
 {
 	int listenerFD;
 
-//dbug();
-
 	if( (listenerFD = socket( AF_INET, SOCK_STREAM, 0 )) == SYSTEM_ERROR_NUMBER )
 	{
-//dbug();
-
 //		perror( "socket error" );
 		return LSOCKET_ERROR;
 	}
 
-//	struct sockaddr_in* p_sockAddr = &sockAddr;
+	memset( (char*) &sockAddr, NULL_CHAR, sizeof( sockAddr ) );
 
-//dbug();
-	memset( (char*) &sockAddr, NULL_CHAR, sizeof( sockAddr ) );	// \_ both cause a bug.
-//	bzero( (char*) sockAddr, sizeof( sockAddr ) );		// /
-
-//printf( "%d\n", sizeof( (char*) sockAddr ) );
-//dbug();
 	sockAddr.sin_family = AF_INET;
-//dbug();
 	sockAddr.sin_addr.s_addr = htonl( INADDR_ANY );
-//dbug();
 	sockAddr.sin_port = htons( DEFAULT_PORT_NUMBER );
-//dbug();
 
 	if( bind( listenerFD, (struct sockaddr*) &sockAddr, sizeof( sockAddr ) ) == SYSTEM_ERROR_NUMBER )
 	{
-//dbug();
 //		perror( "bind error" );
 		return LBIND_ERROR;
 	}
 
-//dbug();
 	return listenerFD;
 
 }
@@ -116,16 +101,7 @@ int receiveMessage( int listenerFD, char* target )
 
 	int clientFD;
 
-//	char receivedInstructions[ BUFFER_LENGTH ];	// passed in by arg "target"
-
-//dbug();	// this executes on run
-//printf( "Ready to receive message!\n" );
 	clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL );
-//printf( "Connection established.\n" );
-//dbug();	// this does not execute on run.  One can only assume it's waiting...
-//	memset( target, NULL_CHAR, BUFFER_LENGTH );
-
-//printf( "Size of target buffer:  %d\n", BUFFER_LENGTH );
 
 
 	// this may require a loop to capture all of the message.
@@ -138,8 +114,9 @@ int receiveMessage( int listenerFD, char* target )
 
 	target[ bytesRead ] = NULL_CHAR;
 
+// keep this block around, just in case...
 ////	int bytesRead = 0;
-
+//
 ////	while( (bytesRead = read( clientFD, target, sizeof( target ) - 1)) > 0 )
 ////	{
 //		totalBytesRead += iterBytesRead;
@@ -152,22 +129,6 @@ int receiveMessage( int listenerFD, char* target )
 //		}
 ////	}
 
-
-//printf( "Bytes read:  0x%x\n", bytesRead );
-//printf( "Message:  \"%s\"\n", target );
-//	target[ totalBytesRead ] = NULL_CHAR;
-
-//	int totalBytesRead = 0, iterBytesRead = 0;
-//
-//	while( iterBytesRead = read( listenerFD, (target + (totalBytesRead += iterBytesRead)), sizeof( target ) - 1 - totalBytesRead ) )
-//	{
-//		printf( "Reading message\n" );
-//	}
-
-//printf( "Message read:  \"%s\"\n", target );
-
-//	snprintf( target, BUFFER_LENGTH, RECEIVE_FORMAT );	// temporarily commented-out
-
 	if( target[0] == QUIT_CHAR && strlen( target ) == 1 )
 	{
 		close( clientFD );
@@ -175,45 +136,12 @@ int receiveMessage( int listenerFD, char* target )
 		return QUIT_PROGRAM;
 	}
 
-//	write( clientFD, target, BUFFER_LENGTH );	// this writes the directive back to the client.  Not really necessary, but nice to include for down-the-road reliability, but we won't worry about it now.
-
-//	spawnProcess( target );	// this is handled in the caller
-
 	return 0;
 }
 
 int main( int argc, char* argv[] )
 {
-//	int listenerFD;
-//
-//	// initialize listenerFD to the file descriptor
-//	//	for this process's IPV4 socket
-//	if( (listenerFD = socket( AF_INET, SOCK_STREAM, 0 )) == -1 )
-//	{
-//		perror( "socket error" );
-//		exit( ERROR_VALUE );
-//	}
-//
-//	struct sockaddr_in* p_sockAddr;
-//
-//	memset( p_sockAddr, NULL_CHAR, sizeof( p_sockAddr ) );
-//
-//	p_sockAddr->sin_family = AF_INET;
-//	p_sockAddr->sin_addr.s_addr = htonl( INADDR_ANY );
-//	p_sockAddr->sin_port = htons( DEFAULT_PORT_NUMBER );
-//
-//	if( bind( listenerFD, (struct sockaddr*) p_sockAddr, sizeof( p_sockAddr ) ) )
-//	{
-//		perror( "bind error" );
-//		exit( ERROR_VALUE );
-//	}
-//
 	struct sockaddr_in sockAddr;
-
-//if( p_sockAddr == 0x0 )
-//{
-//dbug();
-//}
 
 	int listenerFD;
 
@@ -225,10 +153,6 @@ int main( int argc, char* argv[] )
 // on TRUE
 //	listenerFD will contain a file descriptor detailing where to find the socket
 //	the socket will also be bound
-
-//dbug();
-//	memset( (char*) p_sockAddr, NULL_CHAR, sizeof( p_sockAddr ) );
-//dbug();
 	if( (listenerFD = openSocketAndBind( sockAddr )) < 0 )
 	{
 		if( listenerFD == LSOCKET_ERROR )
@@ -241,8 +165,6 @@ int main( int argc, char* argv[] )
 		}
 		exit( SYSTEM_ERROR_NUMBER );
 	}
-
-//	dbug();
 
 	char instruction [BUFFER_LENGTH];
 
@@ -263,79 +185,4 @@ int main( int argc, char* argv[] )
 
 	return 0;
 
-//	receiveMessage( listenerFD );
-
-//	listen( listenerFD, BACKLOG_MAX );	// sleeps the server program until a client wakes it up. (similar to a semaphore)
-//
-//	int clientFD;
-//
-//	char receivedInstructions [ BUFFER_LENGTH ];
-//
-//	while( TRUE )
-//	{
-//		unsigned int acceptFailCount = ACCEPT_FAIL_MAX;
-//
-////		if( clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL )
-//		while( clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL ) )
-////		while( acceptFailCount-- > 0 && (clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL)) )
-//		{
-//			printf( "server failed to accept client.\n\t%d attempts remaining.\n", acceptFailCount );
-//			perror( "server failed to accept client." );
-//		}
-//		if( acceptFailCount == 0 )
-//		{
-//			continue;	// turns the program back so that it cannot falsely execute the following code.
-//// not sure if it is wise to simply turn the program back to the top of the while loop...
-//// The program should be put back to sleep.
-//// The client program may time-out naturally.  not sure how that behavior affects this program.
-//
-//
-//		}
-//
-//		memset( receivedInstructions, NULL_CHAR, BUFFER_LENGTH );
-//
-//		snprintf( receivedInstructions, BUFFER_LENGTH, "%s\0" );
-//
-//		write( clientFD, receivedInstructions, BUFFER_LENGTH );	// may need strlen( receivedInstructions), depending on how the string is laid out.  (don't want any security holes!)
-//
-//		close( clientFD );
-//
-//		spawnProcess( receivedInstructions );
-
-
-/*
- * moved to unobtrusive helper fucntion
-		// thus begins the procedure for calling the program
-		//	specified by the TCP_IP message
-		pid_t current_PID = getpid();
-
-		pid_t returned_PID = fork();
-
-		if( returned_PID < 0 )
-		{
-			printf( "fork fail\n" );
-		}
-		else
-		{
-			if( ret_PID == 0 )
-			{
-				pid_t childPID =  getpid();
-
-
-			}
- *
- */
-
-// either fork to a dedicated program that carries out the instructions
-// or write to the GPIO directly from this position.
-//
-// for the sake of modularity and supporting a dynamic number of components,
-// perhaps forking with the more elegant solution.
-// even better:  Give the desired program its own thread. (no delays!)
-
-//		sleep( 1 );
-//
-//	}
-//
-//	return 0;
 }

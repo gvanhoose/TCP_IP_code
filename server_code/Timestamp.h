@@ -1,0 +1,12 @@
+#ifndef _TIMESTAMP_H_
+#define _TIMESTAMP_H_
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define TIMESTAMP_ERROR -1
+
+int setTimeStamp( char* );
+
+#endif  // _TIMESTAMP_H_

@@ -17,9 +17,6 @@
 #include <string.h>
 #include <sys/types.h>
 
-#include "Server_Log.h"
-#include "Timestamp.h"
-
 #define BUFFER_LENGTH 64
 #define NULL_CHAR '\0'
 #define DEFAULT_PORT_NUMBER 5000
@@ -137,30 +134,11 @@ struct in_addr
 int openSocketAndBind(struct sockaddr_in sockAddr)
 {
 
-	int timestamp [ 6 ];
-
-	if( setTimeStamp( timestamp ) != 0 )
-	{
-		int i;
-		for( i = 0; i < 6; i++ )
-		{
-			timestamp[i] = -1;
-		}
-	}
-
-	char tStamp [] = {("%d:%d:%d %d/%d/%d", timestamp[0], timestamp[1], timestamp[2], timestamp[3], timestamp[4], timestamp[5])};
-
-	logEvent( ("call to openSocketAndBind at %s Result:  ", tStamp) );
-
-
 	int listenerFD;
 
 	if( (listenerFD = socket( AF_INET, SOCK_STREAM, 0 )) == SYSTEM_ERROR_NUMBER )
 	{
 //		perror( "socket error" );
-
-		logEvent( "socket error" );
-		logError( "socket error" );
 		return LSOCKET_ERROR;
 	}
 
@@ -173,8 +151,6 @@ int openSocketAndBind(struct sockaddr_in sockAddr)
 	if( bind( listenerFD, (struct sockaddr*) &sockAddr, sizeof( sockAddr ) ) == SYSTEM_ERROR_NUMBER )
 	{
 //		perror( "bind error" );
-		logEvent( "bind error" );
-		logError( "bind error" );
 		return LBIND_ERROR;
 	}
 

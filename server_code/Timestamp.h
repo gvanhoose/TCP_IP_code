@@ -7,6 +7,6 @@
 
 #define TIMESTAMP_ERROR -1
 
-int setTimeStamp( char* );
+int setTimeStamp( int* );
 
 #endif  // _TIMESTAMP_H_

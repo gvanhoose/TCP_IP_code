@@ -35,10 +35,8 @@ int logEvent( const char* eventDescr )
 	
 	int timestamp [6];
 
-	char tStamp [13];
-	
 	int demarkerIndex, digitIndex;
-	
+
 	if( setTimeStamp( timestamp ) != 0 )
 	{
 		int i;
@@ -47,12 +45,12 @@ int logEvent( const char* eventDescr )
 			timestamp[i] = -1;
 		}
 	}
-	
+
 	char tStamp [] = { ("%d:%d:%d %d/%d/%d ", timestamp[0], timestamp[1], timestamp[2], timestamp[3], timestamp[4], timestamp[5]) };
 
-	
+
 	printf( "Timestamp: %s\n", tStamp );
-	
+
 	if( (printReturn = fprintf( p_LogFile, tStamp )) < 0 )
 	{
 		perror( "Timestamp failed to print" );

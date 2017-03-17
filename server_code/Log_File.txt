@@ -2,4 +2,4 @@ socket opened.call to openSocketAndBind.  Result:  socket opened.·socket opened.
 
 
 
-·socket opened.
+·socket opened.···socket opened.

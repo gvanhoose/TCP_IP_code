@@ -1,0 +1,5 @@
+socket opened.call to openSocketAndBind.  Result:  socket opened.ásocket opened.
+
+
+
+ásocket opened.

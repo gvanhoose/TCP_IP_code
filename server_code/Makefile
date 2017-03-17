@@ -1,5 +1,5 @@
 all:
-	gcc Server.c Server_Log.c Timestamp.c -o server
+	gcc Server.c -o server
 
 clean:
 	rm server

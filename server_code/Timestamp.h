@@ -6,6 +6,8 @@
 #include <time.h>
 
 #define TIMESTAMP_ERROR -1
+#define BASE_YEAR       1900
+#define MONTH_OFFSET    1
 
 int setTimeStamp( int* );
 

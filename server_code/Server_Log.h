@@ -1,3 +1,6 @@
+#ifndef _SERVER_LOG_H_
+#define _SERVER_LOG_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -19,3 +22,5 @@ FILE* openErrFile();
 int logEvent( const char* );
 
 int logError( const char* );
+
+#endif // _SERVER_LOG_H_

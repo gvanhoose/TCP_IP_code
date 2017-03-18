@@ -4,11 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 #define TIMESTAMP_ERROR -1
 #define BASE_YEAR       1900
 #define MONTH_OFFSET    1
 
-int setTimeStamp( int* );
+//struct tm* getTimeStamp();
+//char* tmToString( const struct tm* );
+//char* getTimeString();
+
+char* getTimestamp();
 
 #endif  // _TIMESTAMP_H_

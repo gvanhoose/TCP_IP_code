@@ -1,7 +1,7 @@
 This branch will be used to develop solutions that will send a message, via a TCP/IPv4 client-server relationship, to the Raspberry Pi.
 
 This message will contain the name of a program to be executed by the Raspberry Pi, and any arguments as may be neccessary.
-This message will not be null-terminated.
+This message need not be null-terminated.
 Example:
 	"blink_LED <arg0> <arg1> <arg3>"
 	"toggle_lamp"

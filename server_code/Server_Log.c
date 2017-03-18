@@ -1,4 +1,4 @@
-#include "Server_Log.c"
+#include "Server_Log.h"
 
 FILE* openFile( const char* filename, const char* privileges )
 {
@@ -32,4 +32,69 @@ int logEvent( const char* eventDescr )
 
 	int printRetVal, closeRetVal;
 
-	
+	char* newLine = "\n";
+
+	if( (printRetVal = fprintf( p_logFile, newLine )) < 0 )
+	{
+		perror( "newline character failed to print to log file" );
+	}
+
+	if( (printRetVal = fprintf( p_logFile, getTimestamp() )) < 0 )
+	{
+		perror( "timestamp failed to print to log file" );
+	}
+
+	if( (printRetVal = fprintf( p_logFile, eventDescr )) < 0 )
+	{
+		perror( "event description failed to print to log file" );
+	}
+
+	if( (closeRetVal = fclose( p_logFile )) != 0 )
+	{
+		perror( "log file failed to close properly" );
+		return (printRetVal < 0)? WRITE_CLOSE_ERROR : CLOSE_ERROR;
+	}
+
+	return (printRetVal < 0)? WRITE_ERROR : 0;
+
+}
+
+
+int logError( const char* errDescr )
+{
+	FILE* p_errFile;
+
+	if( (p_errFile = openErrFile()) == NULL )
+	{
+		perror( "err file open error" );
+		return OPEN_ERROR;
+	}
+
+	int printRetVal, closeRetVal;
+
+	char* newLine = "\n";
+
+	if( (printRetVal = fprintf( p_errFile, newLine )) < 0 )
+	{
+		perror( "newline character failed to print to error log file" );
+	}
+
+	if( (printRetVal = fprintf( p_errFile, getTimestamp() )) < 0 )
+	{
+		perror( "timestamp failed to print to error log file" );
+	}
+
+	if( (printRetVal = fprintf( p_errFile, errDescr )) < 0 )
+	{
+		perror( "event description failed to print to error log file" );
+	}
+
+	if( (closeRetVal = fclose( p_errFile )) != 0 )
+	{
+		perror( "error log file failed to close properly" );
+		return (printRetVal < 0)? WRITE_CLOSE_ERROR : CLOSE_ERROR;
+	}
+
+	return (printRetVal < 0)? WRITE_ERROR : 0;
+
+}

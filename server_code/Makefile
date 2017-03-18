@@ -1,5 +1,5 @@
 all:
-	gcc Server.c -o server
+	gcc Server.c Server_Log.c Timestamp.c -o server
 
 clean:
 	rm server
@@ -17,3 +17,6 @@ debug:
 
 tm_test:
 	gcc testTimestamp.c Timestamp.c -o tmTest
+
+log_test:
+	gcc test_Server_Log.c Server_Log.c Timestamp.c -o logTest

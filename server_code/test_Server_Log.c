@@ -8,5 +8,7 @@ int main()
 
 	logError( "execv failed to execute, Lamp was not toggled as such" );
 
+	logAll( "Taxation is theft" );
+
 	return 0;
 }

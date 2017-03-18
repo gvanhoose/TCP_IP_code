@@ -16,6 +16,7 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
+#include "Server_Log.h"
 
 #define BUFFER_LENGTH 64
 #define NULL_CHAR '\0'
@@ -134,11 +135,14 @@ struct in_addr
 int openSocketAndBind(struct sockaddr_in sockAddr)
 {
 
+	logEvent( "new call to \"openSocketAndBind\".  Result:" );
+
 	int listenerFD;
 
 	if( (listenerFD = socket( AF_INET, SOCK_STREAM, 0 )) == SYSTEM_ERROR_NUMBER )
 	{
-//		perror( "socket error" );
+		perror( "socket error" );
+		log( "socket error" );
 		return LSOCKET_ERROR;
 	}
 
@@ -150,7 +154,8 @@ int openSocketAndBind(struct sockaddr_in sockAddr)
 
 	if( bind( listenerFD, (struct sockaddr*) &sockAddr, sizeof( sockAddr ) ) == SYSTEM_ERROR_NUMBER )
 	{
-//		perror( "bind error" );
+		perror( "bind error" );
+		log( "bind error" );
 		return LBIND_ERROR;
 	}
 

@@ -23,4 +23,6 @@ int logEvent( const char* );
 
 int logError( const char* );
 
+int logAll( const char* );
+
 #endif // _SERVER_LOG_H_

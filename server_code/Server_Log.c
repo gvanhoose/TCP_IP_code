@@ -98,3 +98,13 @@ int logError( const char* errDescr )
 	return (printRetVal < 0)? WRITE_ERROR : 0;
 
 }
+
+int logAll( const char* eventDescr )
+{
+	int logRet, errRet;
+
+	logRet = logEvent( eventDescr );
+	errRet = logError( eventDescr );
+
+	return (logRet == 0 && errRet == 0)? 0 : (logRet != 0)? logRet : errRet;
+}

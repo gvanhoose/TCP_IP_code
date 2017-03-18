@@ -142,7 +142,7 @@ int openSocketAndBind(struct sockaddr_in sockAddr)
 	if( (listenerFD = socket( AF_INET, SOCK_STREAM, 0 )) == SYSTEM_ERROR_NUMBER )
 	{
 		perror( "socket error" );
-		log( "socket error" );
+		logAll( "socket error" );
 		return LSOCKET_ERROR;
 	}
 
@@ -155,10 +155,11 @@ int openSocketAndBind(struct sockaddr_in sockAddr)
 	if( bind( listenerFD, (struct sockaddr*) &sockAddr, sizeof( sockAddr ) ) == SYSTEM_ERROR_NUMBER )
 	{
 		perror( "bind error" );
-		log( "bind error" );
+		logAll( "bind error" );
 		return LBIND_ERROR;
 	}
 
+	logEvent( "success" );
 	return listenerFD;
 
 }

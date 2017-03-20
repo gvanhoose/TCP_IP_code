@@ -37,6 +37,9 @@ public class Client implements ActionListener
 	
 	public Client() throws UnknownHostException, IOException
 	{
+	
+		// the following code just initializes a GUI
+	
 		GridLayout grid = new GridLayout(3,1);
 		
 		_masterPane.setLayout(grid);
@@ -57,8 +60,6 @@ public class Client implements ActionListener
 		_window.pack();
 		_window.setVisible(true);
 		_window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		
 		
 		
 //		_serverAddress = JOptionPane.showInputDialog("Enter IP Address of a machine that is running the date service on port 9090:");

@@ -30,9 +30,8 @@ public class Client implements ActionListener
 	
 	private Socket _outputSocket = null, _inputSocket;
 	
-	private String _serverAddress = "10.0.2.15";
-//	private String _serverAddress = "192.168.2.8";
-	private static final int PORT_NUMBER_OUTPUT = 5000, PORT_NUMBER_INPUT = 9090;
+	private String _serverAddress = "/* Put the IP address of the server's computer here */";
+	private static final int PORT_NUMBER_OUTPUT = 9091, PORT_NUMBER_INPUT = 9090;
 	
 	private boolean _keepRunning = true;
 	

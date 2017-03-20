@@ -7,7 +7,12 @@ clean:
 run:
 	./server
 
+bgrnd:
+	./server &
+
 live: all run
+
+live_background: all bgrnd
 
 test: all run clean
 

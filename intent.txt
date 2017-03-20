@@ -1,4 +1,1 @@
-The purpose of this branch is to create a solution that allows a Raspberry Pi to be used as a server.
-This will allow devices in Tim's room to be controlled wirelessly,
-	through a router,
-	and to allow for dynamic processing of requests.
+This branch shall be used by Jordan and Robert to organize all code and functionality for the purposes of exerting wireless control over a Smart TV.

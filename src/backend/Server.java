@@ -224,13 +224,13 @@ public class Server implements ActionListener
 		
 	}
 	
-//	private void dbug()
-//	{
-//		System.out.println("Reaching");
-//	}
-//	
-//	private void print(String msg)
-//	{
-//		System.out.println(msg);
-//	}
+	private void dbug()
+	{
+		System.out.println("Reaching");
+	}
+	
+	private void print(String msg)
+	{
+		System.out.println(msg);
+	}
 }

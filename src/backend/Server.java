@@ -145,11 +145,7 @@ public class Server implements ActionListener
 	@Override
 	public void actionPerformed(ActionEvent e0)
 	{
-		String cmd = e0.getActionCommand();
-		
-//		print( "action command:  \"" + cmd + "\"");
-		
-		switch( cmd )
+		switch( e0.getActionCommand() )
 		{
 			case "Send":
 			{

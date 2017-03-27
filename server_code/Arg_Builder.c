@@ -19,7 +19,7 @@ int get_nargs( const char* rawCmd )
 
 int main()
 {
-	printf( "%d", get_nargs( "Hello World!" ) );
+	printf( "%d", get_nargs( "Hello World!\n" ) );
 
 	return 0;
 }

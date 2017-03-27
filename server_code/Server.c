@@ -32,7 +32,7 @@
 #define QUIT_CHAR 'q'
 #define LREAD_ERROR -6
 #define LACCEPT_ERROR -7
-
+#define ARG_FIELD_INIT 10
 
 /**
  * A simple function that prints a message to console.
@@ -67,6 +67,28 @@ void dbug()
 int spawnProcess( const char*  arg)
 {
 printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until proper functionality confirmed to this point!)\n", arg );
+
+	char* p_arg = arg;
+
+	char* args [ ARG_FIELD_INIT ];
+
+	int nargs = 0;
+
+	while( *p_arg != NULL_CHAR )
+	{
+
+		char working [ strlen( p_arg ) + 1 ];
+
+		while( *p_arg != ' ' && *p_arg != NULL_CHAR )
+		{
+
+			*( working++ ) = *( p_arg++ );
+		}
+		*working = NULL_CHAR;
+		args[ nargs++ ] = working;
+	}
+
+	printf( "%s%c%s%c", args[0], NEW_LINE, args[1], NULL_CHAR );
 /*
  * commented-out for testing only!
  *
@@ -275,6 +297,11 @@ receiveMessage will wait until a client establishes a connection
 		this new process will execute the program described by instruction
  *
  */
+	spawnProcess( "Hello World!" );
+
+/*
+ * commented-out while testing arg-buidling functionality in spawnProcess
+ *
 	int recReturnValue, keepGoing = TRUE;
 
 	while( keepGoing )
@@ -308,7 +335,8 @@ receiveMessage will wait until a client establishes a connection
 		}
 
 	}
-
+ *
+ */
 	return 0;
 
 }

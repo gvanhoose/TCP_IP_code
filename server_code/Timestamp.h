@@ -10,10 +10,6 @@
 #define BASE_YEAR       1900
 #define MONTH_OFFSET    1
 
-//struct tm* getTimeStamp();
-//char* tmToString( const struct tm* );
-//char* getTimeString();
-
 char* getTimestamp();
 
 #endif  // _TIMESTAMP_H_

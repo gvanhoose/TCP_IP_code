@@ -33,7 +33,8 @@
 #define QUIT_CHAR 'q'
 #define LREAD_ERROR -6
 #define LACCEPT_ERROR -7
-#define ARG_FIELD_INIT 10
+#define LFORK_FAIL -8
+#define LEXECV_FAIL -9
 
 /**
  * A simple function that prints a message to console.
@@ -74,7 +75,7 @@ printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until p
 	char* args [ nargs ];
 
 	int i;
-	for( i = 0; i < nargs; i++ )
+	for( i = 0; i < nargs; i++ )	// have to initialize args & ensure it ready to go
 	{
 		args[i] = malloc( argLen + 1 );
 		memset( args[i], '\0', argLen + 1 );
@@ -82,33 +83,6 @@ printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until p
 
 	build_args( args, arg, argLen, nargs );
 
-/*
- * defunct code follows
- *	to be replaced by calls to "int get_nargs(...)" and "void build_args(...)"
- *
-	char* p_arg = arg;
-
-	char* args [ ARG_FIELD_INIT ];
-
-	int nargs = 0;
-
-	while( *p_arg != NULL_CHAR )
-	{
-
-		char working [ strlen( p_arg ) + 1 ];
-
-		while( *p_arg != ' ' && *p_arg != NULL_CHAR )
-		{
-
-			*( working++ ) = *( p_arg++ );
-		}
-		*working = NULL_CHAR;
-		args[ nargs++ ] = working;
-	}
-
-	printf( "%s%c%s%c", args[0], NEW_LINE, args[1], NULL_CHAR );
- *
- */
 /*
  * commented-out for testing only!
  *
@@ -119,20 +93,25 @@ printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until p
 	if( returnedPID  < 0 )
 	{
 		printf( "Fork fail" );
-		return( SYSTEM_ERROR_CODE );
+		return( LFORK_FAIL );
 	}
 	if( returnedPID == 0 )
 	{
-		return 0;
+		wait();		// may not need to wait, but we should take care to avoid the zombie apocalypse.
+		return 0;	// parent process
 	}
 
-	// program only proceeds to this area IF returned_PID is positive and nonzero
+// program only proceeds to this area IF returned_PID is positive and nonzero
 
 	pid_t childPID = getpid();
 
-	char* execArgs [1];
+	execv( args[0], args );
 
-	execv( execArgs[0], execArgs );
+	log_error( "execv failed while attempting to execute the following:" );
+
+	char* errPrint = ("execv failed while attempting to execute:  %s", arg);
+
+	log_error( errPrint );
 
 	exit( 0 );
  *

@@ -68,6 +68,10 @@ int spawnProcess( const char*  arg)
 {
 printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until proper functionality confirmed to this point!)\n", arg );
 
+/*
+ * defunct code follows
+ *	to be replaced by calls to "int get_nargs(...)" and "void build_args(...)"
+ *
 	char* p_arg = arg;
 
 	char* args [ ARG_FIELD_INIT ];
@@ -89,6 +93,8 @@ printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until p
 	}
 
 	printf( "%s%c%s%c", args[0], NEW_LINE, args[1], NULL_CHAR );
+ *
+ */
 /*
  * commented-out for testing only!
  *

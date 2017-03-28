@@ -10,7 +10,7 @@ void dbug()
  *	treats consecutive spaces as a single space
  *	returns 0 if given an empty string or a string consisting of only spaces.
  */
-int get_nargs( const char* rawCmd, int argLength )
+int get_nargs( char* rawCmd, int argLength )
 {
 	int nargs = 0;
 	

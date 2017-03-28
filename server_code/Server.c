@@ -17,6 +17,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include "Server_Log.h"
+#include "Arg_Builder.h"
 
 #define BUFFER_LENGTH 64
 #define NULL_CHAR '\0'
@@ -64,9 +65,22 @@ void dbug()
  *		There may be some merit to establishing a TCP_IP connection between the client and child process.
  *
  */
-int spawnProcess( const char*  arg)
+int spawnProcess( char*  arg)
 {
 printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until proper functionality confirmed to this point!)\n", arg );
+
+	int argLen = strlen( arg ), nargs = get_nargs( arg, argLen );
+
+	char* args [ nargs ];
+
+	int i;
+	for( i = 0; i < nargs; i++ )
+	{
+		args[i] = malloc( argLen + 1 );
+		memset( args[i], '\0', argLen + 1 );
+	}
+
+	build_args( args, arg, argLen, nargs );
 
 /*
  * defunct code follows
@@ -303,11 +317,10 @@ receiveMessage will wait until a client establishes a connection
 		this new process will execute the program described by instruction
  *
  */
-	spawnProcess( "Hello World!" );
 
 /*
  * commented-out while testing arg-buidling functionality in spawnProcess
- *
+ */
 	int recReturnValue, keepGoing = TRUE;
 
 	while( keepGoing )
@@ -341,7 +354,7 @@ receiveMessage will wait until a client establishes a connection
 		}
 
 	}
- *
+ /*
  */
 	return 0;
 

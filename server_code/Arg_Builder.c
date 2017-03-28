@@ -1,9 +1,9 @@
 #include "Arg_Builder.h"
 
-void dbug()
-{
-	printf( "Reaching\n" );
-}
+//void dbug()
+//{
+//	printf( "Reaching\n" );
+//}
 
 /**
  * Returns the number of valid arguments given in a command line.
@@ -67,7 +67,7 @@ void build_args( char* target[], char* rawArg, int argLength, int nargs )
 
 /**
  * For testing only!
- */
+ *
 int main()
 {
 	char* tester = "Hello World!  HEY YOU GUYSSSS! ! !";
@@ -99,3 +99,5 @@ int main()
 	
 	return 0;
 }
+ *
+ */

@@ -10,7 +10,7 @@ void dbug()
  *	treats consecutive spaces as a single space
  *	returns 0 if given an empty string or a string consisting of only spaces.
  */
-int get_nargs( const char* rawCmd, int argLength )
+int get_nargs( char* rawArg, int argLength )
 {
 	int nargs = 0;
 	
@@ -157,25 +157,28 @@ void build_args( char* target[], char* rawArg, int argLength, int nargs )
  */
 int main()
 {
-	char* tester = "";
-	
+	char* tester = "Hello World!  HEY YOU GUYSSSS! ! !";
+//	char* tester = "        ";
+//	char* tester = "";
+
+
 	int tLen = strlen( tester ), nargs = get_nargs( tester, tLen );
-	
+
 	printf( "Test:\t\"%s\"\nnargs:\t%d\n", tester, nargs );
-	
+
 	char* args [ nargs ];
-	
+
 	int i;
 	for( i = 0; i < nargs; i++ )
 	{
 		args[i] = malloc( tLen + 1 );
-		memset( arg[i], '\0', tLen + 1 );
+		memset( args[i], '\0', tLen + 1 );
 	}
-	
+
 	build_args( args, tester, tLen, nargs );
-	
+
 	printf( "Reading args:\n" );
-	
+
 	for( i = 0; i < nargs; i++ )
 	{
 		printf( "\targs[%d] =\t\"%s\"\n", i, args[i] );

@@ -52,3 +52,10 @@ static int GPIO_read( int pin )
 	closes that file descriptor
 	calls atoi, passes the local buffer as an arg, on return
 
+main
+	call order:
+		GPIO_export for all requisite pins (IN and OUT)
+		GPIO_direction for each respective pin
+		GPIO_write as necessary
+		GPIO_read as necessary
+		GPIO_unexport for all requisite pins (IN and OUT)

@@ -11,7 +11,7 @@
 #define LOW		0
 #define HIGH		1
 
-#define PIN_COUNT_INDEX	2
+#define PIN_COUNT_INDEX	1 // which index within argv contains the number of pins affected by this request
 #define MAX_PIN_COUNT	29	// 40 pins, 9 are constant voltage (2 each 3.3VDC and 5VDC, 5 0VDC/Ground), 2 are reserved)
 
 #define PROGRAM_ERROR	-1

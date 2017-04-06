@@ -2,7 +2,7 @@
 
 void dbug()
 {
-	printf( "Reaching" );
+	printf( "Reaching\n" );
 }
 
 /**
@@ -22,7 +22,7 @@ int extractPinNumber( char* raw, int rawLength )
 
 	if( *raw < 0x30 || *raw > 0x39 )	// checks for non-numerical characters at the start of the arg
 	{
-dbug();
+//dbug();
 //		log_error( "Invalid gpio pin request" );
 		return LBAD_PIN_ARG;
 	}
@@ -30,8 +30,8 @@ dbug();
 	while( (current = *(raw++)) != ',' )
 	{
 		if( current < 0x30 || current > 0x39 || (end_substr - substring >= 2) )	// checks for non-numerical characters and pin numbers that are longer than they should be
-		{
-dbug();
+		{			
+//dbug();
 //			log_error("Bad gpio pin request");
 			return LBAD_PIN_ARG;
 		}
@@ -43,6 +43,7 @@ dbug();
 /**
  * args for this program shall proceed as follows:
  *	argv[i]		description			example
+ *
  *	argv[0]		name of executable		"gpio_acces"
  *	argv[1]		number of pins being accessed	"4"
  *	argv[2]		pin#, direction, value		"1,OUT;HIGH"

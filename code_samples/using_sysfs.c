@@ -74,7 +74,7 @@ static int GPIO_direction( int pin, int direction )	// sets direction of pins
 		return -1;
 	}
 
-	if( write( file_descriptor, &s_directions_str[ (IN == dir)? 0:3 ], (IN == dir)? 0:3 ) < 0 )
+	if( write( file_descriptor, &s_directions_str[ (IN == direction)? 0:3 ], (IN == direction)? 0:3 ) < 0 )
 	{
 		fprintf( stderr, "Failed to set direction" );
 		return -1;

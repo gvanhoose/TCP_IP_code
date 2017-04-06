@@ -11,6 +11,11 @@
 #define LOW		0
 #define HIGH		1
 
+#define PIN_COUNT_INDEX	3
+#define MAX_PIN_COUNT	29	// 40 pins, 9 are constant voltage (2 each 3.3VDC and 5VDC, 5 0VDC/Ground), 2 are reserved)
+
+#define PROGRAM_ERROR	-1
+
 #define GPIO_INIT_PATH		"/sys/class/gpio/export"
 #define GPIO_INIT_ERR_MSG	"Failed to open sys/class/gpio/export for writing\n"
 

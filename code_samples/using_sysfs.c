@@ -66,7 +66,7 @@ static int GPIO_direction( int pin, int direction )	// sets direction of pins
 
 	int file_descriptor;
 
-	snprintf( path, DIRECTION_MAX, "/sys/class/gpio/gpio%d/direction", pin )
+	snprintf( path, DIRECTION_MAX, "/sys/class/gpio/gpio%d/direction", pin );
 
 	if( (file_descriptor = open( path, O_WRONLY )) < 0 )
 	{
@@ -101,7 +101,7 @@ static int GPIO_read( int pin )
 		return -1;
 	}
 
-	if( read( fd, value_str, 3 < 0 ) )
+	if( read( file_descriptor, value_str, 3 < 0 ) )
 	{
 		fprintf( stderr, "Failed to read value\n" );
 		return -1;
@@ -169,7 +169,7 @@ int main( int argc, char* argv [] )
 	} while( repeat-- );	// this is main control, the "operating system"  though loopin is not required for our purposes.
 
 	// Disable GPIO pins
-	if( GPIO_unexport( P_OUT ) < 0 OR GPIO_unexport( P_IN ) < 0 )
+	if( GPIO_unexport( P_OUT ) < 0 || GPIO_unexport( P_IN ) < 0 )
 	{
 		return 4;
 	}

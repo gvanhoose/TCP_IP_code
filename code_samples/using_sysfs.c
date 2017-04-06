@@ -16,13 +16,13 @@
 
 #define BUFFER_MAX	3
 
-static int GPIO_Export( int pin )
+static int GPIO_export( int pin )	// initializes GPIO
 {
 	char buffer [ BUFFER_MAX ];
 
 	int bytes_written, file_descriptor;
 
-	if( (file_descriptor = open( "/sys/class/gpio/export", O_WRONLY )) < 0 )
+	if( (file_descriptor = open( "/sys/class/gpio/export\n", O_WRONLY )) < 0 )
 	{
 		fprintf( stderr, "Failed to open export for writing!" );
 		return -1;
@@ -36,7 +36,7 @@ static int GPIO_Export( int pin )
 	return 0;
 }
 
-static int GPIO_unexport( int pin )
+static int GPIO_unexport( int pin )	// returns GPIO to original state (maybe?)
 {
 	char buffer [ BUFFER_MAX ];
 
@@ -44,7 +44,7 @@ static int GPIO_unexport( int pin )
 
 	if( (file_descriptor = open( "/sys/class/gpio/unexport", O_WRONLY )) < 0 )
 	{
-		fprintf( stderr, "Failed to open unexport for writing!" );
+		fprintf( stderr, "Failed to open unexport for writing!\n" );
 		return -1;
 	}
 
@@ -58,7 +58,7 @@ static int GPIO_unexport( int pin )
 }
 
 #define DIRECTION_MAX	35
-static int GPIO_direction( int pin, int direction )
+static int GPIO_direction( int pin, int direction )	// sets direction of pins
 {
 	static const char s_directions_str [] = "in out";	// change ' ' to null term!
 
@@ -70,7 +70,7 @@ static int GPIO_direction( int pin, int direction )
 
 	if( (file_descriptor = open( path, O_WRONLY )) < 0 )
 	{
-		fprintf( stderr, "Failed to open gpio direction for writing" );
+		fprintf( stderr, "Failed to open gpio direction for writing\n" );
 		return -1;
 	}
 
@@ -97,13 +97,13 @@ static int GPIO_read( int pin )
 
 	if( (file_descriptor = open( path, O_RDONLY )) < 0 )
 	{
-		fprintf( stderr, "Failed to open GPIO value for reading" );
+		fprintf( stderr, "Failed to open GPIO value for reading\n" );
 		return -1;
 	}
 
 	if( read( fd, value_str, 3 < 0 ) )
 	{
-		fprintf( stderr, "Failed to read value" );
+		fprintf( stderr, "Failed to read value\n" );
 		return -1;
 	}
 
@@ -124,12 +124,12 @@ static int GPIO_write( int pin, int value )
 
 	if( (file_descriptor = open( path, O_WRONLY )) < 0 )
 	{
-		fprintf( stderr, "Failed to open gpio value for writing" );
+		fprintf( stderr, "Failed to open gpio value for writing\n" );
 		return -1;
 	}
 	if( write( file_descriptor, &s_values_str[ (value == LOW)? 0:1 ], 1 ) < 0 )
 	{
-		fprintf( stderr, "Failed to write value!" );
+		fprintf( stderr, "Failed to write value!\n" );
 		return -1;
 	}
 
@@ -143,13 +143,13 @@ int main( int argc, char* argv [] )
 	int repeat = 10;
 
 	// Enable GPIO pins
-	if( GPIO_export( P_OUT ) < 0 OR  GPIO_export( P_IN ) < 0 )
+	if( GPIO_export( P_OUT ) < 0 || GPIO_export( P_IN ) < 0 )
 	{
 		return 1;
 	}
 
 	// Set GPIO direction(s)
-	if( GPIO_direction( P_OUT, OUT ) < 0 OR GPIO_direction( P_IN, IN ) < 0 )
+	if( GPIO_direction( P_OUT, OUT ) < 0 || GPIO_direction( P_IN, IN ) < 0 )
 	{
 		return 2;
 	}
@@ -163,10 +163,10 @@ int main( int argc, char* argv [] )
 		}
 
 		// Read GPIO value
-		printf( "I'm reading %d in GPIO %d", GPIO_read( P_IN ), P_IN );
+		printf( "I'm reading %d in GPIO %d\n", GPIO_read( P_IN ), P_IN );
 
 		usleep( 500 * 1000 );
-	} while( repeat-- );
+	} while( repeat-- );	// this is main control, the "operating system"  though loopin is not required for our purposes.
 
 	// Disable GPIO pins
 	if( GPIO_unexport( P_OUT ) < 0 OR GPIO_unexport( P_IN ) < 0 )

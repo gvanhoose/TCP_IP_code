@@ -1,5 +1,10 @@
 #include "gpio_access.h"
 
+void dbug()
+{
+	printf( "Reaching" );
+}
+
 /**
  * takes an string arg in
  *	number , string ; format
@@ -15,17 +20,24 @@ int extractPinNumber( char* raw, int rawLength )
 
 	char current;
 
-
+	if( *raw < 0x30 || *raw > 0x39 )	// checks for non-numerical characters at the start of the arg
+	{
+dbug();
+//		log_error( "Invalid gpio pin request" );
+		return LBAD_PIN_ARG;
+	}
+//dbug();
 	while( (current = *(raw++)) != ',' )
 	{
-		if( current < 0x30 || current > 0x39 || (end_substr - substring > 2) )	// checks for non-numerical characters and pin numbers that are longer than they should be
+		if( current < 0x30 || current > 0x39 || (end_substr - substring >= 2) )	// checks for non-numerical characters and pin numbers that are longer than they should be
 		{
+dbug();
 //			log_error("Bad gpio pin request");
 			return LBAD_PIN_ARG;
 		}
 		*(end_substr++) = current;
 	}
-
+//dbug();
 	return atoi( substring );
 }
 /**
@@ -39,6 +51,10 @@ int extractPinNumber( char* raw, int rawLength )
  */
 int main( int argc, char* argv [] )
 {
+
+/*
+ * commented out for testing only!
+ */
 	if( argc < 3 )
 	{
 //		log_error("Incorrect number of args for gpio_access");	// set up error logging for this
@@ -59,27 +75,51 @@ int main( int argc, char* argv [] )
 	}
 // at this point, pin count is determined to be an allowable number
 
+	int i;
+	for( i = PIN_COUNT_INDEX + 1; i < pin_count; i++ )
+	{
+		char* current = argv[ i ];
 
-	char tester [] = "1,Hello;world";
+		int pinNumber = extractPinNumber( current , strlen( current ) );
+
+		// TODO:  set up a function to extract the pin direction and another to extract the value to be thus written, if applicable
+	}
+/*
+ *
+ */
+
+/*
+ * testing for "int extractPinNumber( char*, int );"
+ *	all tests passed!
+ *
+//	char tester [] = "3953,Hello;world";
+//	char tester [] = "320,Hello;world";	// did not work; update:  fixed this problem!
+//	char tester [] = "1;Hello,world";
+//	char tester [] = ";";
+//	char tester [] = ",";
+//	char tester [] = "Hello,;world";
+//	char tester [] = "a,Hello;world";
+	char tester [] = "12,Hello;world";	// correct input case
+//	char tester [] = "";
+//	char tester [] = "1Hello;world";
+//	char tester [] = "1 ,Hello;world";
+//	char tester [] = ",Hello;world";
 
 	int n, tLen = strlen( tester );
 
 	n = extractPinNumber( tester, tLen );
 
-	printf( "%d\n", n );
-
-//	int i;
-//	for( i = 0; i < pin_count; i++ )
-//	{
-//		char* current = argv[ i + PIN_COUNT_INDEX + 1 ];
-//
-//		if(
+	printf( "%d\n", (n + 1) );
+ *
+ *
+ */
 
 
 
-
-
-
+/*
+ * testing to make sure the macros work
+ *	they do
+ *
 //	printf( ERR_MSG_DIRECTION_PATH(7) );
 
 //	int pin = 8;
@@ -90,6 +130,7 @@ int main( int argc, char* argv [] )
 
 //	char msg [] = ERR_MSG_SET_DIRECTION(3);
 //	printf( msg );
-
+ *
+ */
 	return 0;
 }

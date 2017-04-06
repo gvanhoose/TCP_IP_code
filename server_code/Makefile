@@ -13,7 +13,11 @@ clean:
 run:
 	./wrapper
 
-live: all run
+place_all:
+	mv wrapper ~/Desktop/On_Startup
+	mv server ~/Desktop/On_Startup
+
+live: all place_all
 
 test: all run clean
 

@@ -24,7 +24,7 @@ int main( int argc, char* argv [] )
 		exit(PROGRAM_ERROR);
 	}
 // at this point, pin count is determined to be nonzero
-	if( pin_count < 0 OR pin_count > MAX_PIN_COUNT )
+	if( pin_count < 0 || pin_count > MAX_PIN_COUNT )
 	{
 //		
 

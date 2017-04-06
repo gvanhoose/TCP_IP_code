@@ -24,6 +24,10 @@ lamp_and_fan:
 
 export:
 	gcc export_pin.c -o exportPin
+
+export_and_place: export
+	mv exportPin /home/pi/Desktop/On_Startup
+
 clean_export:
 	rm exportPin
 

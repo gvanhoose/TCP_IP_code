@@ -18,8 +18,9 @@ int extractPinNumber( char* raw, int rawLength )
 
 	while( (current = *(raw++)) != ',' )
 	{
-		if( current < 0x30 OR current > 0x39 OR (end_substr - substring > 2) )	// checks for non-numerical characters and pin numbers that are longer than they should be
+		if( current < 0x30 || current > 0x39 || (end_substr - substring > 2) )	// checks for non-numerical characters and pin numbers that are longer than they should be
 		{
+//			log_error("Bad gpio pin request");
 			return LBAD_PIN_ARG;
 		}
 		*(end_substr++) = current;
@@ -65,7 +66,7 @@ int main( int argc, char* argv [] )
 
 	n = extractPinNumber( tester, tLen );
 
-	printf( "%d", n );
+	printf( "%d\n", n );
 
 //	int i;
 //	for( i = 0; i < pin_count; i++ )

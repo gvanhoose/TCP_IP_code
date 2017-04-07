@@ -40,6 +40,15 @@ int extractPinNumber( char* raw, int rawLength )
 //dbug();
 	return atoi( substring );
 }
+
+char* extractDirection( char* raw, int raw_length )
+{
+	char* output = raw;
+
+	while( *(raw++) != ',' );
+
+	if( (raw - output) < 2
+
 /**
  * args for this program shall proceed as follows:
  *	argv[i]		description			example
@@ -81,7 +90,19 @@ int main( int argc, char* argv [] )
 	{
 		char* current = argv[ i ];
 
-		int pinNumber = extractPinNumber( current , strlen( current ) );
+		int cur_length;
+
+		int pinNumber = extractPinNumber( current , (cur_length = strlen( current )) );
+
+		if( pinNumber < 0 )
+		{
+//			log_error("bad pin number, cannot proceed with GPIO request" );
+			exit(PROGRAM_ERROR);
+		}
+
+//		current += ( pinNumber >= 10 )? 2:1;
+
+		char* direction = extractDirection( current, cur_length );
 
 		// TODO:  set up a function to extract the pin direction and another to extract the value to be thus written, if applicable
 	}

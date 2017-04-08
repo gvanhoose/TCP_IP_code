@@ -22,49 +22,75 @@ int extractPinNumber( char* raw, int rawLength )
 
 	if( *raw < 0x30 || *raw > 0x39 )	// checks for non-numerical characters at the start of the arg
 	{
-//dbug();
 //		log_error( "Invalid gpio pin request" );
 		return LBAD_PIN_ARG;
 	}
-//dbug();
+
 	while( (current = *(raw++)) != ',' )
 	{
 		if( current < 0x30 || current > 0x39 || (end_substr - substring >= 2) )	// checks for non-numerical characters and pin numbers that are longer than they should be
-		{			
-//dbug();
+		{
+
 //			log_error("Bad gpio pin request");
 			return LBAD_PIN_ARG;
 		}
 		*(end_substr++) = current;
 	}
-//dbug();
-	return atoi( substring );
+
+	return atoi( substring );	// safe to run this now because substring is guaranteed to consist of chars 0x30 - 0x39
 }
 
-char* extractDirection( char* raw, int raw_length )
+/**
+ * iterates over the raw input between the ',' and ';'
+ * on success
+ *	returns IN or OUT
+ * on error
+ *	returns LBAD_ARG
+ *	caller must handle this error from that point on
+ */
+int extractDirection( char* raw, int raw_length )
 {
+
+
 	char* output = raw;
 
-	while( *(raw++) != ',' );
+	raw--;	// this is so preincrementing will work, which will be necessary later!
 
-	if( (raw - output) < 2
+	int commaIndex;
 
+	while( *(++raw) != ',' && (commaIndex = ( raw - output)) < raw_length);
+
+	if( ( commaIndex != 1 && commaIndex != 2 ) || commaIndex >= raw_length )	// 2 is the lowest index possible for the ',' in correct input; if raw - output equals or is greater than raw_length, then no comma was found
+	{
+//		log_error( "Incorrect argument format" );
+		return LBAD_ARG;
+	}
+// at this point, the comma has been located and is in the correct index (1 or 2)
+
+	char substring [] = "\0\0\0\0\0";
+
+	int semicolonIndex;
+
+	while( *(raw++) != ';' && ( semicolonIndex = (raw - output) ) < raw_length
+
+	return 0;
+}
 /**
  * args for this program shall proceed as follows:
  *	argv[i]		description			example
  *
  *	argv[0]		name of executable		"gpio_acces"
  *	argv[1]		number of pins being accessed	"4"
- *	argv[2]		pin#, direction, value		"1,OUT;HIGH"
- *	argv[3]		pin#, direction, value		"2,IN;"
- *	argv[4]		pin#, direction, value		"3,OUT;LOW"
+ *	argv[2]		pin#, direction, value		"1,OUT,HIGH"
+ *	argv[3]		pin#, direction, value		"2,IN,"
+ *	argv[4]		pin#, direction, value		"3,OUT,LOW"
  */
 int main( int argc, char* argv [] )
 {
 
 /*
  * commented out for testing only!
- */
+ *
 	if( argc < 3 )
 	{
 //		log_error("Incorrect number of args for gpio_access");	// set up error logging for this
@@ -106,6 +132,36 @@ int main( int argc, char* argv [] )
 
 		// TODO:  set up a function to extract the pin direction and another to extract the value to be thus written, if applicable
 	}
+ *
+ *
+ */
+
+/*
+ * testing for "int extractDirection( char*, int );"
+ */
+	char tester [] = "21,IN;";		// correct input
+//	char tester [] = "21,endTheFed;";
+//	char tester [] = "IN,21;HIGH";
+//	char tester [] = ";";
+//	char tester [] = ",";
+//	char tester [] = "";
+//	char tester [] = ",;";
+//	char tester [] = ";,";
+//	char tester [] = "21,;HIGH";
+//	char tester [] = "21:,IN";
+//	char tester [] = ",IN;";
+//	char tester [] = "15,OUT;HIGH";		// correct input
+//	char tester [] = "15;OUT,HIGH";
+//	char tester [] = "15,artificialInflationIsTheftAlso;HIGH";
+//	char tester [] = "OUT,15;HIGH";
+//	char tester [] = "OUT;15,HIGH";
+//	char tester [] = "HIGH,15;OUT";
+//	char tester [] = "HIGH;15,OUT";
+//	char tester [] = "HIGH,OUT;15";
+//	char tester [] = "HIGH;OUT,15";
+//	char tester [] = "15;OUT;HIGH";
+//	char tester [] = "15,OUT,HIGH";
+//	char tester [] = "15,out;HIGH";
 /*
  *
  */

@@ -50,3 +50,8 @@ void println( const char* toPrint)
 {
 	printf( "%s\n", toPrint );
 };
+
+void dbug()
+{
+	printf( "Reaching\n" );
+}

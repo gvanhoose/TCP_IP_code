@@ -45,3 +45,8 @@
 #define WRITE_ERROR(x)		"On write:  Failed to write to pin %d\n",x
 
 int writePin(const int, const int);
+
+void println( const char* toPrint)
+{
+	printf( "%s\n", toPrint );
+};

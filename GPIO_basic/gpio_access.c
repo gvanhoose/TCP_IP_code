@@ -11,13 +11,13 @@ int GPIO_init( const int n_requests, struct Pin_Request* requests )
 
 		char pinNumberString [ PIN_STRING_MAX_LENGTH ];
 
-		pinStringLength = snprintf( pinNumberString, PIN_STRING_MAX_LENGTH, "%d", current.pin_number);
-
 		if( (init_fd = open( GPIO_INIT_PATH, O_WRONLY )) < 0 )
 		{
 //			log_error( GPIO_INIT_ERR_MSG );
 			return GPIO_INIT_OPEN_ERROR;
 		}
+
+		pinStringLength = snprintf( pinNumberString, PIN_STRING_MAX_LENGTH, "%d", current.pin_number);
 
 		if( write( init_fd, pinNumberString, pinStringLength ) < 0 )
 		{
@@ -45,7 +45,7 @@ int GPIO_release( int n_requests, struct Pin_Request* requests )
 
 		int release_fd, pinStrLength;
 
-		char pinString [ MAX_PIN_STRING_LENGTH ];
+		char pinString [ PIN_STRING_MAX_LENGTH ];
 
 		if( (release_fd = open( GPIO_RELEASE_PATH, O_WRONLY )) < 0 )
 		{
@@ -53,7 +53,7 @@ int GPIO_release( int n_requests, struct Pin_Request* requests )
 			return GPIO_RELEASE_OPEN_ERROR;
 		}
 
-		pinStrLength = snprintf( pinString, MAX_PIN_STRING_LENGTH, "%d", current.pin_number );
+		pinStrLength = snprintf( pinString, PIN_STRING_MAX_LENGTH, "%d", current.pin_number );
 
 		if( write( release_fd, pinString, pinStrLength ) < 0 )
 		{
@@ -79,9 +79,9 @@ int configurePinDirections( const int n_requests, struct Pin_Request* requests )
 	{
 		struct Pin_Request current = requests[i];
 // check to ensure current is not null!
-		char buffer [ STD_BUFFER_LENGTH ];
+//		char buffer [ STD_BUFFER_LENGTH ];
 
-		int direction_fd, bytes_written;
+		int direction_fd;//, bytes_written;
 
 		if( (direction_fd = open( DIRECTION_PATH_FOR_PIN( current.pin_number ), O_WRONLY )) < 0 );
 		{
@@ -118,8 +118,8 @@ int executePinRequests( const int n_requests, struct Pin_Request* requests )
 	{
 		struct Pin_Request current = requests[i];
 
-		char file_buffer [ PIN_IO_BUFFER_LENGTH ];
-		memset( file_buffer, '\0', PIN_IO_BUFFER_LENGTH );
+		char file_buffer [ PIN_VALUE_STR_LENGTH ];
+		memset( file_buffer, '\0', PIN_VALUE_STR_LENGTH );
 
 		int
 			write_fd,
@@ -134,9 +134,10 @@ int executePinRequests( const int n_requests, struct Pin_Request* requests )
 
 		if( read_eor_write == O_WRONLY )
 		{
-			file_buffer[0] = current.value | 0x30;
-
-			if( write( write_fd, file_buffer, 1) < 0 )
+//			file_buffer[0] = current.value | 0x30;
+			int pinStrLength = snprintf( file_buffer, PIN_VALUE_STR_LENGTH, "%d", current.value );
+			
+			if( write( write_fd, file_buffer, PIN_VALUE_STR_LENGTH ) < 0 )
 			{
 				close( write_fd );
 //				log_error( "failed to write a value to a pin" );
@@ -146,7 +147,8 @@ int executePinRequests( const int n_requests, struct Pin_Request* requests )
 		}
 		else if( read_eor_write == O_RDONLY )
 		{
-			if( read( write_fd, file_buffer, 1 ) < 0 )
+			
+			if( read( write_fd, file_buffer, PIN_VALUE_STR_LENGTH ) < 0 )
 			{
 				close( write_fd );
 //				log_error( "failed to read a value from a pin" );

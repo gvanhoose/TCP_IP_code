@@ -33,7 +33,7 @@ int GPIO_init( const int n_requests, struct Pin_Request* requests )
 		}
 	}
 
-	return SUCCESS:
+	return SUCCESS;
 }
 
 int GPIO_release( int n_requests, struct Pin_Request* requests )
@@ -382,7 +382,7 @@ println( "direction does not accurately specify \"in\" or \"out\"" );
 	}
 	if( executePinRequests( pin_count, pinRequests ) != 0 )
 	{
-/		log_error( "GPIO could not execute these pin requests" );
+//		log_error( "GPIO could not execute these pin requests" );
 		exit( GPIO_EXEC_PIN_FAIL );
 	}
 	if( GPIO_release( pin_count, pinRequests ) != 0 )

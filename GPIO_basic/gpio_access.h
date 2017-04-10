@@ -15,10 +15,9 @@
 #define HIGH		1
 #define UNREAD		-1
 
-#define STD_BUFFER_LENGTH	20
+#define PIN_STRING_MAX_LENGTH	3	// 2 for pin number, 1 for null term
 
-//#define RAW_STR_WRITE		"OUT"	// \_ unnecessary macros
-//#define RAW_STR_READ		"IN"	// /
+
 
 
 
@@ -34,27 +33,47 @@
 #define MIN_PIN_NUMBER	2	// there is no GPIO01
 #define MAX_PIN_NUMBER	27	// GPIO pin numbers are continuous on [2,27]
 
-#define PROGRAM_ERROR 	0	// de-comment this if testing with "make test_all"
+#define SUCCESS			0	// how does one define success?
+#define PROGRAM_ERROR		0	// de-comment this if testing with "make test_all"
 #ifndef PROGRAM_ERROR
-#define PROGRAM_ERROR	-1	// 
+#define PROGRAM_ERROR		-1	// 
 #endif	// PROGRAM_ERROR
-#define LBAD_PIN_ARG  -2
+#define LBAD_PIN_ARG		-2
+#define GPIO_INIT_OPEN_ERROR	-3
+#define GPIO_INIT_WRITE_ERROR	-4
+#define GPIO_INIT_CLOSE_ERROR	-5
+#define GPIO_RELEASE_OPEN_ERROR	-6
+#define GPIO_RELEASE_WRITE_ERROR -7
+#define GPIO_RELEASE_CLOSE_ERROR -8
+#define DIRECTION_OPEN_ERROR	-9
+#define DIRECTION_WRITE_ERROR	-10
+#define DIRECTION_CLOSE_ERROR	-11
+#define PIN_RW_OPEN_ERROR	-12
+#define PIN_WRITE_ERROR		-13
+#define PIN_READ_ERROR		-14
+#define UNKNOWN_PIN_REQUEST	-15
+#define GPIO_INIT_FAIL		-16
+#define GPIO_DIR_CONFIG_FAIL	-17
+#define GPIO_EXEC_PIN_FAIL	-18
+#define GPIO_RELEASE_FAIL	-19
 
 #define GPIO_INIT_PATH		"/sys/class/gpio/export"
-#define GPIO_INIT_ERR_MSG	"Failed to open sys/class/gpio/export for writing\n"
+
+
+#define PIN_IO_BUFFER_LENGTH	2
 
 #define GPIO_RELEASE_PATH	"/sys/class/gpio/unexport"
-#define GPIO_RELEASE_ERR_MSG	"Failed to open sys/class/gpio/unexport for writing\n"
+//#define GPIO_RELEASE_ERR_MSG	"Failed to open sys/class/gpio/unexport for writing\n"
 
 #define DIRECTION_PATH_FOR_PIN(x)	"/sys/class/gpio/gpio%d/direction\n",x
-#define ERR_MSG_DIRECTION_PATH(x)	"Failed to open path for pin %d\n",x
-#define ERR_MSG_SET_DIRECTION(x)	"Failed to set direction for pin %d\n",x
+//#define ERR_MSG_DIRECTION_PATH(x)	"Failed to open path for pin %d\n",x
+//#define ERR_MSG_SET_DIRECTION(x)	"Failed to set direction for pin %d\n",x
 
 #define READ_WRITE_PATH(x)	"/sys/class/gpio/gpio%d/value\n",x
-#define READ_OPEN_ERROR(x)	"On read:  Failed to open path for pin %d\n",x
-#define READ_ERROR(x)		"On read:  Failed to read value for pin %d\n",x
-#define WRITE_OPEN_ERROR(x)	"On write:  Failed to open path for pin %d\n",x
-#define WRITE_ERROR(x)		"On write:  Failed to write to pin %d\n",x
+//#define READ_OPEN_ERROR(x)	"On read:  Failed to open path for pin %d\n",x
+//#define READ_ERROR(x)		"On read:  Failed to read value for pin %d\n",x
+//#define WRITE_OPEN_ERROR(x)	"On write:  Failed to open path for pin %d\n",x
+//#define WRITE_ERROR(x)		"On write:  Failed to write to pin %d\n",x
 
 struct Pin_Request
 {

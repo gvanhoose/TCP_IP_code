@@ -16,6 +16,7 @@
 #define UNREAD		-1
 
 #define PIN_STRING_MAX_LENGTH	3	// 2 for pin number, 1 for null term
+#define PIN_VALUE_STRING_LENGTH	1	// only need 1
 
 
 

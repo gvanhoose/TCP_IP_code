@@ -1,5 +1,77 @@
 #include "gpio_access.h"
 
+int GPIO_init( const int n_requests, struct Pin_Request* requests )
+{
+	int i;
+	for( i = 0; i < n_requests; i++ )
+	{
+		struct Pin_Request current = requests[i];
+
+		int init_fd, pinStringLength;
+
+		char pinNumberString [ PIN_STRING_MAX_LENGTH ];
+
+		pinStringLength = snprintf( pinNumberString, PIN_STRING_MAX_LENGTH, "%d", current.pin_number);
+
+		if( (init_fd = open( GPIO_INIT_PATH, O_WRONLY )) < 0 )
+		{
+//			log_error( GPIO_INIT_ERR_MSG );
+			return GPIO_INIT_OPEN_ERROR;
+		}
+
+		if( write( init_fd, pinNumberString, pinStringLength ) < 0 )
+		{
+//			log_error( "GPIO init write error" );
+			close( init_fd );
+			return GPIO_INIT_WRITE_ERROR;
+		}
+
+		if( close( init_fd ) != 0 )
+		{
+//			log_error( "GPIO init close error" );
+			return GPIO_INIT_CLOSE_ERROR;
+		}
+	}
+
+	return SUCCESS:
+}
+
+int GPIO_release( int n_requests, struct Pin_Request* requests )
+{
+	int i;
+	for( i = 0; i < n_requests; i++ )
+	{
+		struct Pin_Request current = requests[i];
+
+		int release_fd, pinStrLength;
+
+		char pinString [ MAX_PIN_STRING_LENGTH ];
+
+		if( (release_fd = open( GPIO_RELEASE_PATH, O_WRONLY )) < 0 )
+		{
+//			log_error( "GPIO release open error" );
+			return GPIO_RELEASE_OPEN_ERROR;
+		}
+
+		pinStrLength = snprintf( pinString, MAX_PIN_STRING_LENGTH, "%d", current.pin_number );
+
+		if( write( release_fd, pinString, pinStrLength ) < 0 )
+		{
+//			log_error( "GPIO release write error" );
+			close( release_fd );
+			return GPIO_RELEASE_WRITE_ERROR;
+		}
+
+		if( close( release_fd ) != 0 )
+		{
+//			log_error( "GPIO release close error" );
+			return GPIO_RELEASE_CLOSE_ERROR;
+		}
+	}
+
+	return SUCCESS;
+}
+
 int configurePinDirections( const int n_requests, struct Pin_Request* requests )
 {
 	int i;
@@ -15,16 +87,24 @@ int configurePinDirections( const int n_requests, struct Pin_Request* requests )
 		{
 //			log_error( "Unable to access file descriptor for direction path" );
 println( "configurePinDirection fail on open" );
-//			return( DIRECTION_ERROR );	// \_ pick one
-			continue;			// /	or allow caller to choose... maybe...
+			return( DIRECTION_OPEN_ERROR );	// \_ pick one
+//			continue;			// /	or allow caller to choose... maybe...
 		}
 
 		if( write( direction_fd, current.direction, strlen(current.direction) ) < 0 )
 		{
 //			log_error( "Unable to set direction" );
 println( "configurePinDirection fail on write" );
-//			return( DIRECTION_ERROR );
-			continue;
+			close( direction_fd );
+			return( DIRECTION_WRITE_ERROR );
+//			continue;
+		}
+
+		if( close( direction_fd ) != 0 )
+		{
+//			log_error( "Unable to close pin directioin location" );
+			return( DIRECTION_CLOSE_ERROR );
+//			continue;
 		}
 	}
 
@@ -36,19 +116,77 @@ int executePinRequests( const int n_requests, struct Pin_Request* requests )
 	int i;
 	for( i = 0; i < n_requests; i++ )
 	{
-		
+		struct Pin_Request current = requests[i];
+
+		char file_buffer [ PIN_IO_BUFFER_LENGTH ];
+		memset( file_buffer, '\0', PIN_IO_BUFFER_LENGTH );
+
+		int
+			write_fd,
+			read_eor_write = (strcmp( IN, current.direction))? O_WRONLY : O_RDONLY
+			;
+		if( (write_fd = open( READ_WRITE_PATH(current.pin_number), read_eor_write )) < 0 )
+		{
+//			log_error( "failed to open pin filepath for read or write request" );
+			return( PIN_RW_OPEN_ERROR );
+//			continue;	// testing only!
+		}
+
+		if( read_eor_write == O_WRONLY )
+		{
+			file_buffer[0] = current.value | 0x30;
+
+			if( write( write_fd, file_buffer, 1) < 0 )
+			{
+				close( write_fd );
+//				log_error( "failed to write a value to a pin" );
+				return ( PIN_WRITE_ERROR );
+//				continue;	// testing only!
+			}
+		}
+		else if( read_eor_write == O_RDONLY )
+		{
+			if( read( write_fd, file_buffer, 1 ) < 0 )
+			{
+				close( write_fd );
+//				log_error( "failed to read a value from a pin" );
+				return( PIN_READ_ERROR );
+//				continue;
+			}
+			current.value = atoi( file_buffer );
+		}
+		else
+		{
+
+/**
+ * WARNING!!!
+ * if the program is as well-tested and planned as I hope, this scope should never execute.
+ *	if this scope does execute, then there is a problem in parsing args during this program's initial call!
+ */
+			close( write_fd );
+//			log_error( "unkown request -- not read nor write.  Check to make sure improper arguments are identified" );
+			return( UNKNOWN_PIN_REQUEST );
+		}
+
+		if( close( write_fd ) != 0 )
+		{
+//			log_error( "failed to close pin filepath after read or write" );
+			return ( PIN_CLOSE_ERROR );
+//			continue;
+		}
+
 	}
 
-	return 0;
+	return SUCCESS;
 }
 
-int writePin( const int pinNumber, const int value )
-{
-printf( "Writing %d to pin %d", value, pinNumber );
-println("");
-
-	return -1;
-}
+//int writePin( const int pinNumber, const int value )
+//{
+//printf( "Writing %d to pin %d", value, pinNumber );
+//println("");
+//
+//	return -1;
+//}
 
 /**
  * args for this program shall proceed as follows:
@@ -67,6 +205,13 @@ int main( int argc, char* argv [] )
 	{
 		println("");
 		println( "NEW TEST" );
+		int t;
+		for( t = 0; t < argc; t++ )
+		{
+			printf( "%s ", argv[t] );	// when combined with the stdout redirect, this prints to file!
+		}
+		println("");
+		printf("Result:\t");
 	}
 /*
  * commented out for testing only!
@@ -103,6 +248,11 @@ println("");
 	int i;
 	for( i = 0; i < pin_count; i++ )
 	{
+		if( strcmp( "./test", argv[0] ) == 0 )
+		{
+			printf( "Pin Request %d:\t", i );
+		}
+
 		char* current = argv[ i + PIN_COUNT_INDEX + 1 ];
 		char* rawPinNumber;
 		char* rawDirection;
@@ -179,7 +329,8 @@ println( "Request for pin IN cannot specify a write value" );
 			}
 			pinRequests[ i ].direction = rawDirection;
 			pinRequests[ i ].value = UNREAD;
-			break;
+println( "pin in request has been accepted" );
+			continue;
 		}
 		else if( strcmp(OUT, rawDirection) == 0)
 		{
@@ -204,7 +355,8 @@ println( "Write value for pin OUT not correctly specified" );
 			pinRequests[ i ].direction = rawDirection;
 			pinRequests[ i ].value = isNotLow? HIGH : LOW;	// cannot guarantee the value of isNotLow will be only 1 or 0
 //			strcpy( &(pinRequests[i].direction), rawDirection );
-			break;
+println( "pin out request has been accepted" );
+			continue;
 		}
 		else
 		{
@@ -214,77 +366,28 @@ println( "direction does not accurately specify \"in\" or \"out\"" );
 			exit( PROGRAM_ERROR );
 		}
 
-
-
-
-
-
-
-
-/*
- * obsolete code follows
- *
-// now to check rawDirection and rawWriteValue
-
-//		int dirComparedToWrite;
-
-		if(
-//			(dirComparedToWrite = strcmp( RAW_STR_WRITE, rawDirection ) != 0)
-			strcmp( RAW_STR_WRITE, rawDirection ) != 0
-			&&
-			strcmp( RAW_STR_READ, rawDirection ) != 0
-		  )	// ensures rawDirection contains either "in" or "out" and nothing else!
-		{
-//			log_error( "Arg does not specify in or out properly." );
-println( "\"in\" or \"out\" not specified or incorrectly formatted" );
-			exit( PROGRAM_ERROR );
-		}
-
-		if( dirComparedToWrite )		// almost-guaranteed to be a read if conditional is true
-		{
-			if( rawWriteValue != NULL )	// if 
-			{
-//				log_error( "Write value not left blank.  Unknown if intent was to read from the pin or write to that pin." );
-println( "WRITE value not left blank on IN request" );
-				exit( PROGRAM_ERROR );
-			}
-printf( "Reading from pin %d", pinNumber );
-println("");
-			pinRequests[i].pin_number = pinNumber;
-			pinRequests[i].direction = rawDirection;
-			pinRequests[i].value = UNREAD;
-
-
-			// TODO:  code to read from pins goes here.
-			// NB:  The current scope of the project does not require any reading from pins.
-			continue;
-		}
-// at this point, almost-guaranteed to have a write
-
-		if( rawWriteValue == NULL )
-		{
-//			log_error( "Write value is not specified.  Unknown if intent was to write a value to a pin or to read from that pin" );
-println( "WRITE value not specified on WRITE" );
-			exit( PROGRAM_ERROR );
-		}
-
-		toWrite = ( strcmp( RAW_STR_HIGH, rawWriteValue ) == 0 )? HIGH : ( strcmp( RAW_STR_LOW, rawWriteValue ) == 0 )? LOW : -1;
-
-		if( toWrite < 0 )
-		{
-//			log_error( "Invalid write value." );
-println( "Invalid WRITE value" );
-			exit( PROGRAM_ERROR );
-		}
-
-		pinRequests[i].pin_number = pinNumber;
-		pinRequests[i].direction = OUT;
-		pinRequests[i].value = toWrite;
- *
- *
- */
-//		writePin( pinNumber, toWrite );	// this may get moved, if all writes are going to be offloaded to one function (would prevent an impartial value written to, say, a multiplexer control wire if a successful request completes before an unsuccessful request terminates the whole program!)
 	}
 
-	return 0;
+	if( GPIO_init( pin_count, pinRequests ) != 0 )
+	{
+//		log_error( "GPIO was not successfully initialized for these requests" );
+		exit( GPIO_INIT_FAIL );
+	}
+	if( configurePinDirections( pin_count, pinRequests ) != 0 )
+	{
+//		log_error( "GPIO directions were not successfully set" );
+		exit( GPIO_DIR_CONFIG_FAIL );
+	}
+	if( executePinRequests( pin_count, pinRequests ) != 0 )
+	{
+/		log_error( "GPIO could not execute these pin requests" );
+		exit( GPIO_EXEC_PIN_FAIL );
+	}
+	if( GPIO_release( pin_count, pinRequests ) != 0 )
+	{
+//		log_error( "GPIO could not release pins after executing pin requests" );
+		exit( GPIO_RELEASE_FAIL );
+	}
+
+	return SUCCESS;
 }

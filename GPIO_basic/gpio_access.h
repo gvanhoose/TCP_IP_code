@@ -1,3 +1,6 @@
+#ifndef _GPIO_ACCESS_H_
+#define _GPIO_ACCESS_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,7 +34,10 @@
 #define MIN_PIN_NUMBER	2	// there is no GPIO01
 #define MAX_PIN_NUMBER	27	// GPIO pin numbers are continuous on [2,27]
 
-#define PROGRAM_ERROR	-1
+#define PROGRAM_ERROR 	0	// de-comment this if testing with "make test_all"
+#ifndef PROGRAM_ERROR
+#define PROGRAM_ERROR	-1	// 
+#endif	// PROGRAM_ERROR
 #define LBAD_PIN_ARG  -2
 
 #define GPIO_INIT_PATH		"/sys/class/gpio/export"
@@ -70,3 +76,6 @@ void dbug()
 {
 	printf( "Reaching\n" );
 }
+
+
+#endif	// _GPIO_ACCESS_H_

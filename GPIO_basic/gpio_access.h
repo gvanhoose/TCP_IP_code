@@ -16,7 +16,7 @@
 #define UNREAD		-1
 
 #define PIN_STRING_MAX_LENGTH	3	// 2 for pin number, 1 for null term
-#define PIN_VALUE_STRING_LENGTH	1	// only need 1
+#define PIN_VALUE_STR_LENGTH	1	// only need 1
 
 
 
@@ -52,11 +52,12 @@
 #define PIN_RW_OPEN_ERROR	-12
 #define PIN_WRITE_ERROR		-13
 #define PIN_READ_ERROR		-14
-#define UNKNOWN_PIN_REQUEST	-15
-#define GPIO_INIT_FAIL		-16
-#define GPIO_DIR_CONFIG_FAIL	-17
-#define GPIO_EXEC_PIN_FAIL	-18
-#define GPIO_RELEASE_FAIL	-19
+#define PIN_CLOSE_ERROR		-15
+#define UNKNOWN_PIN_REQUEST	-16
+#define GPIO_INIT_FAIL		-17
+#define GPIO_DIR_CONFIG_FAIL	-18
+#define GPIO_EXEC_PIN_FAIL	-19
+#define GPIO_RELEASE_FAIL	-20
 
 #define GPIO_INIT_PATH		"/sys/class/gpio/export"
 

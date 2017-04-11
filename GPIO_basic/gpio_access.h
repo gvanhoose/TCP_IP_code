@@ -15,15 +15,15 @@
 #define HIGH		1
 #define UNREAD		-1
 
+#define MINIMUM_REQUIRED_ARGS	3	// this is the minimum count of argument tokens that MUST be passed to the gpio_access program
+
 #define FILE_WRITE	"w"
 #define FILE_READ	"r"
 
 #define PIN_STRING_MAX_LENGTH	3	// 2 for pin number, 1 for null term
 #define PIN_VALUE_STR_LENGTH	1	// only need 1
 
-
 #define GPIO_PATH_BUFFER_LENGTH	40
-
 
 #define RAW_STR_HIGH		"HIGH"
 #define RAW_STR_LOW		"LOW"
@@ -64,7 +64,7 @@
 
 #define GPIO_INIT_PATH		"/sys/class/gpio/export"
 
-#define PIN_IO_BUFFER_LENGTH	2
+//#define PIN_IO_BUFFER_LENGTH	2
 
 #define GPIO_RELEASE_PATH	"/sys/class/gpio/unexport"
 //#define GPIO_RELEASE_ERR_MSG	"Failed to open sys/class/gpio/unexport for writing\n"
@@ -85,20 +85,22 @@ struct Pin_Request
 	char* direction;
 };
 
+int GPIO_init( const int, struct Pin_Request* );		// may need to be moved to another program
 int configurePinDirections( const int, struct Pin_Request* );
 int executePinRequests( const int, struct Pin_Request* );
+int GPIO_release( const int, struct Pin_Request* );		// may need to be moved to another program
 
-int writePin(const int, const int);
+//int writePin(const int, const int);
 
-void println( const char* toPrint)
-{
-	printf( "%s\n", toPrint );
-};
-
-void dbug()
-{
-	printf( "Reaching\n" );
-}
+//void println( const char* toPrint)
+//{
+//	printf( "%s\n", toPrint );
+//};
+//
+//void dbug()
+//{
+//	printf( "Reaching\n" );
+//}
 
 
 #endif	// _GPIO_ACCESS_H_

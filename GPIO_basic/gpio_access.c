@@ -286,24 +286,19 @@ int main( int argc, char* argv [] )
 {
 	if( strcmp( "./test", argv[ 0 ] ) == 0 )
 	{
-		println("");
-		println( "NEW TEST" );
+		printf( "============================\nNEW TEST\n" );
 		int t;
 		for( t = 0; t < argc; t++ )
 		{
 			printf( "%s ", argv[t] );	// when combined with the stdout redirect, this prints to file!
 		}
-		println("");
-		printf("Result:\t");
+		printf("\nResult:\t");
 	}
-/*
- * commented out for testing only!
- */
-//printf( "nargs:  %d", argc );
-	if( argc < 3 )		// there must be at least 3 incoming args!
+
+	if( argc < MINIMUM_REQUIRED_ARGS )		// there must be at least 3 incoming args!
 	{
 //		log_error("Incorrect number of args for gpio_access");	// set up error logging for this
-println( "argc < 3" );
+		printf( "argc < 3\n" );
 		exit(PROGRAM_ERROR);
 	}
 
@@ -311,18 +306,17 @@ println( "argc < 3" );
 	if( (pin_count = atoi( argv[ PIN_COUNT_INDEX ] )) == 0 )	// if pinCount is zero, the following loop will not run and no pins will be updated!
 	{
 //		log_error("No pin count provided.");
-println( "invalid pin count -- non-numeric chars" );
+		printf( "invalid pin count -- non-numeric chars\n" );
 		exit(PROGRAM_ERROR);
 	}
 // at this point, pin count is determined to be nonzero
 	if( pin_count < 0 || pin_count > MAX_PIN_COUNT )		// checks for too high of a pin count (in reality, pin_count should be unsigned, but checking for negative values works just the same since valid values of pin_count are extremely low)
 	{
 //		log_error("Pin count is too high.");
-println( "invalid pin count -- too high" );
+		printf( "invalid pin count -- too high\n" );
 		exit(PROGRAM_ERROR);
 	}
-printf( "pin count is %d", pin_count );
-println("");
+//	printf( "pin count is %d\n", pin_count );
 
 	struct Pin_Request pinRequests [ pin_count ];
 
@@ -350,7 +344,7 @@ println("");
 		if( (rawPinNumber = strtok( current, PIN_NUMBER_DEMARKER )) == NULL )
 		{
 //			log_error( "Invalid argument, missing pin number or incorrectly formatted." );
-println( "missing pin # or bad format" );
+			printf( "missing pin # or bad format\n" );
 			exit( PROGRAM_ERROR );
 		}
 
@@ -358,7 +352,7 @@ println( "missing pin # or bad format" );
 		if( (rawDirection = strtok( NULL, PIN_DIRECTION_DEMARKER )) == NULL )
 		{
 //			log_error( "Invalid argument, missing pin direction or incorrectly formatted." );
-println( "missing direction or misspelled or bad format" );
+			printf( "missing direction or misspelled or bad format\n" );
 			exit( PROGRAM_ERROR );
 		}
 
@@ -372,29 +366,22 @@ println( "missing direction or misspelled or bad format" );
 		)	// rawDirection may contain erroneous information, so these calls to strcmp are not reliable to that end just yet.
 		{
 //			log_error( "Write value specified with request to Read, or no Write value specified with request to Write" );
-println( "HIGH or LOW specified on IN, or no value specified on OUT" );
+			printf( "HIGH or LOW specified on IN, or no value specified on OUT\n" );
 			exit( PROGRAM_ERROR );
 		}
 
-//		if( *rawPinNumber == '0' &&  strlen( rawPinNumber ) == 1 )	// important to differentiate between a request for pin 0 and a error return from "int atoi(char*)"
-//		{
-//			pinNumber = 0;
-//		}
-//		else
-//		{
-			if( (pinNumber = atoi( rawPinNumber )) == 0 )
-			{
-//				log_error( "Invalid pin number." );	// because rawPinNumber was tested on whether it specified pin 0, the only way the conditional could be true is if atoi returned zero, meaning rawPinNumber contained a non-numeric char
-println( "bad pin number" );
-				exit( PROGRAM_ERROR );
-			}
-			if( pinNumber < MIN_PIN_NUMBER || pinNumber > MAX_PIN_NUMBER )	// also test for specific pin numbers that are either too high or low
-			{
-//				log_error( "Invalid pin number. (must be a pin between 2-27)" );
-println( "pin number too high or low" );
-				exit( PROGRAM_ERROR );
-			}
-//		}
+		if( (pinNumber = atoi( rawPinNumber )) == 0 )
+		{
+//			log_error( "Invalid pin number." );	// because rawPinNumber was tested on whether it specified pin 0, the only way the conditional could be true is if atoi returned zero, meaning rawPinNumber contained a non-numeric char
+			printf( "bad pin number\n" );
+			exit( PROGRAM_ERROR );
+		}
+		if( pinNumber < MIN_PIN_NUMBER || pinNumber > MAX_PIN_NUMBER )	// also test for specific pin numbers that are either too high or low
+		{
+//			log_error( "Invalid pin number. (must be a pin between 2-27)" );
+			printf( "pin number too high or low\n" );
+			exit( PROGRAM_ERROR );
+		}
 // at this point, pinNumber is guaranteed to identify a specific, valid pin on the RPi
 
 		pinRequests[ i ].pin_number = pinNumber;
@@ -407,12 +394,15 @@ println( "pin number too high or low" );
 			if( rawWriteValue != NULL )
 			{
 //				log_error( "pin read request specifies write value; unknown if intent was to read or write pin" );
-println( "Request for pin IN cannot specify a write value" );
+				printf( "Request for pin IN cannot specify a write value\n" );
 				exit( PROGRAM_ERROR );
 			}
 			pinRequests[ i ].direction = rawDirection;
 			pinRequests[ i ].value = UNREAD;
-println( "pin in request has been accepted" );
+			printf( "pin in request has been accepted\n" );
+/**
+ * In the future, if input from GPIO is needed, this is where it will go
+ */
 			continue;
 		}
 		else if( strcmp(OUT, rawDirection) == 0)
@@ -421,43 +411,47 @@ println( "pin in request has been accepted" );
 			if( rawWriteValue == NULL )
 			{
 //				log_error( "pin write request does not specify write value; unknown if intent was to read or write pin" );
-println( "Request for pin OUT must specify a write value" );
+				printf( "Request for pin OUT must specify a write value\n" );
 				exit( PROGRAM_ERROR );
 			}
 			int isNotLow;
 			if(
-				(isNotLow = strcmp( "LOW", rawWriteValue ) != 0)
+				(isNotLow = strcmp( RAW_STR_LOW, rawWriteValue ) != 0)
 				&&
-				strcmp( "HIGH",  rawWriteValue ) != 0
+				strcmp( RAW_STR_LOW,  rawWriteValue ) != 0
 			  )
 			{
 //				log_error( "write value not correctly specified" );
-println( "Write value for pin OUT not correctly specified" );
+				printf( "Write value for pin OUT not correctly specified\n" );
 				exit( PROGRAM_ERROR );
 			}
 			pinRequests[ i ].direction = rawDirection;
 			pinRequests[ i ].value = isNotLow? HIGH : LOW;	// cannot guarantee the value of isNotLow will be only 1 or 0
 //			strcpy( &(pinRequests[i].direction), rawDirection );
-println( "pin out request has been accepted" );
+			printf( "pin out request has been accepted\n" );
 			continue;
 		}
 		else
 		{
 // confirmed rawDirection is invalid
 //			log_error( "Invalid pin direction" );
-println( "direction does not accurately specify \"in\" or \"out\"" );
+			printf( "direction does not accurately specify \"in\" or \"out\"\n" );
 			exit( PROGRAM_ERROR );
 		}
 
 	}
 
-println( "About to start actual GPIO access" );
+	printf( "About to start actual GPIO access\n" );
 
-//	if( GPIO_init( pin_count, pinRequests ) != 0 )
-//	{
-////		log_error( "GPIO was not successfully initialized for these requests" );
-//		exit( GPIO_INIT_FAIL );
-//	}
+/*
+ * The following conditional blocks of code are commented-out because the pins need to be initialized ("exported") elsewhere.
+	if( GPIO_init( pin_count, pinRequests ) != 0 )
+	{
+//		log_error( "GPIO was not successfully initialized for these requests" );
+		exit( GPIO_INIT_FAIL );
+	}
+ *
+ */
 	if( configurePinDirections( pin_count, pinRequests ) != 0 )
 	{
 		GPIO_release( pin_count, pinRequests );
@@ -470,13 +464,16 @@ println( "About to start actual GPIO access" );
 //		log_error( "GPIO could not execute these pin requests" );
 		exit( GPIO_EXEC_PIN_FAIL );
 	}
-//	if( GPIO_release( pin_count, pinRequests ) != 0 )
-//	{
-////		log_error( "GPIO could not release pins after executing pin requests" );
-//		exit( GPIO_RELEASE_FAIL );
-//	}
-
-println( "Concluded actual GPIO access" );
+/*
+ * calling this turns the specified pins off
+	if( GPIO_release( pin_count, pinRequests ) != 0 )
+	{
+//		log_error( "GPIO could not release pins after executing pin requests" );
+		exit( GPIO_RELEASE_FAIL );
+	}
+ *
+ */
+	printf( "GPIO access programming successfully completed\n" );
 
 	return SUCCESS;
 }

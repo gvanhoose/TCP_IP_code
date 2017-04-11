@@ -86,21 +86,85 @@ struct Pin_Request
 };
 
 int GPIO_init( const int, struct Pin_Request* );		// may need to be moved to another program
+
 int configurePinDirections( const int, struct Pin_Request* );
+
+/**
+ * PARAMS:
+ *	const int n_requests		The number of pins being requested for GPIO access
+ *	struct Pin_Request* requests	An array of type struct Pin_Request*, which contains all information and space required for reading or writing
+ * RETURNS:
+ *	SUCCESS			on successful execution
+ *	PIN_RW_OPEN_ERROR	if /sys/class/gpio/gpio#/value cannot be found
+ *	PIN_WRITE_ERROR		if the current request's value is not successfully written to the pin
+ *	PIN_READ_ERROR		if the specified pin's value cannot be successfully read
+ *	UNKNOWN_PIN_REQUEST	if the current request is unspecified vis-a-vis read or write
+ *	PIN_CLOSE_ERROR		if /sys/class/gpio/gpio#/value cannot be closed properly
+ * NOTES:
+ *	It is somewhat expected that the most-common erroroneous return will be PIN_RW_OPEN_ERROR
+ *		This happens if the pin number has not be exported.
+ *		This is remedied by exporting the pin from either the command line, or attempting to direct the program to update the /sys/class/gpio/export file directly
+ *	This function can take in a dynamic number of read and write requests
+ *		All pins specified in these requests must be exported in /sys/class/gpio/export BEFORE this function is called
+ * ON SUCCESS:
+ *	In the OS:
+ *		/sys/class/gpio/gpio# (where # is the pin number) will carry a direction and a value, which can be read from or written to
+ *		All file descriptors are disposed within the scope of this function
+ *		if a read is performed, the specific pin request in requests will have its value variable updated from UNREAD (-1) to either HIGH (1) or LOW (0)
+ *	On the hardware:
+ *		if a write is performed, the pin specified by the individual request will carry the new output voltage
+ *		if a read is performed, the behavior of the pin's voltage may not be predictable, but typical behavior with simple GPIO dictates that its voltage should remain unaffected by any read
+ * ON FAILURE:
+ *	In the OS:
+ *		Presently, the entire function will be exited.
+ *		A solution which attempts to rectify certain errors is in development, which will preserve the program's flow as best as possible without it quitting in the middle of the requests list
+ *	On the hardware:
+ *		Any GPIO requests which are serviced BEFORE an error is encountered will remain unchanged
+ *		Any GPIO requests which come AFTER an error is encountered remain unserviced, unless a means of correcting errors where possible is implemented
+ */
 int executePinRequests( const int, struct Pin_Request* );
 int GPIO_release( const int, struct Pin_Request* );		// may need to be moved to another program
 
-//int writePin(const int, const int);
+/**
+ * the following may be de-commented for debugging purposes!
+ *
 
-//void println( const char* toPrint)
-//{
-//	printf( "%s\n", toPrint );
-//};
-//
-//void dbug()
-//{
-//	printf( "Reaching\n" );
-//}
+// this can be used to help measure printed string lengths
+//	it prints a '|' char on every tenth character space
+//	up to the length specified by maxLength
+void printHashMarks(int maxLength)
+{
+	int i;
+	for( i = 0; i < maxLength; i++ )
+	{
+		if( (i+1) % 10 != 1 )
+		{
+			printf( " " );
+			continue;
+		}
+		printf( "|" );
+	}
+	printf( "\n" );
+}
 
+// want to print a simple message?
+// does manually typing in the new line char '\n' take up too much time?
+// or maybe your keyboard doesn't allow you to easily type the new line char?
+// well have we got the function for you!
+// This function takes in a string, prints it, AND takes care of printing the '\n' char so you don't have to!
+void println( const char* toPrint)
+{
+	printf( "%s\n", toPrint );
+};
+
+// this prints a simple message:  "Reaching" and starts a new line
+// this is particularly useful if you want to track program flow during debugging
+void dbug()
+{
+	printf( "Reaching\n" );
+}
+ *
+ *
+ */
 
 #endif	// _GPIO_ACCESS_H_

@@ -1,31 +1,5 @@
 #include "gpio_access.h"
 
-void printOnTens()
-{
-	int i;
-	for( i = 0; i < 40; i++ )
-	{
-		if( (i + 1) % 10 != 1 )
-		{
-			printf( " " );
-			continue;
-		}
-		printf( "|" );
-	}
-	printf( "\n" );
-}
-
-/*
-int GPIO_export( int pinNumber )
-{
-	char pinString [ 3 ];
-
-	int pinStrLength = snprintf( pinString, 3, "%d",pinNumber );
-
-	
-}
-*/
-
 int GPIO_init( const int n_requests, struct Pin_Request* requests )
 {
 	printf( "\nReaching GPIO_init\n" );
@@ -50,6 +24,7 @@ int GPIO_init( const int n_requests, struct Pin_Request* requests )
 		int pinStringLength = snprintf( pinNumberString, PIN_STRING_MAX_LENGTH, "%d", current.pin_number);
 
 //		int errRetVal;
+		// none of these work!  UGH!
 		if( fprintf( init_fd, "%d", current.pin_number ) < 0)
 //		if( fwrite( pinNumberString, 1, pinStringLength, init_fd ) != pinStringLength )
 //		if( (errRetVal = fwrite( pinNumberString, 1, pinStringLength, init_fd )) != pinStringLength )

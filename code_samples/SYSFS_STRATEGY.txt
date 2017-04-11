@@ -1,0 +1,61 @@
+Strategy for using sysfs, for GPIO purposes
+
+common macros
+	IN	0
+	OUT	1
+	HIGH	1
+	LOW	0
+
+GPIO_init( int pin )
+	opens path to gpio in a file descriptor
+		"/sys/class/gpio/export"
+		I'll bet this is one of those ghost files GWA was talking about!
+	prints pin to a local buffer in string format
+		note:  The provided example uses snprintf, which uses a caller-provided size-limit to what is ultimately written.
+	writes that buffer to the file descriptor for ".../gpio/export"
+	error checking as appropriate
+	avoid the zombie apocalypse:  Close your file descriptors
+
+	My best guess is that writing a pin number in c_string format to the "file" ("/sys/class/gpio/export") initializes that pin for GPIO purposes
+
+GPIO_release( int pin )
+	returns GPIO to original state (???)
+	opens path to gpio in file descriptor
+		"/sys/class/gpio/unexport"
+	prints pin number to local buffer
+	writes that buffer to "/sys/class/gpio/unexport"
+	close file descriptor
+
+GPIO_direction( int pin, int direction )
+	uses: static const char s_directions_str [] = "in%cout", NEW_LINE
+	prints the filepath to local buffer
+		"/sys/class/gpio/gpio#/direction"
+		here, # is replaced by pin
+		may be why there is such a convoluted means of putting this filepath into "char pathname" [] format
+	opens a file descriptor for the path
+	writes "in" or "out" (as contained nicely locally in s_directions_str)
+	close file descriptor
+
+GPIO_write( int pin, int value )	// seems like this should be easy, but the function itself is quite long!
+	uses: static const char s_values_str [] = "01";
+	prints a filepath to a local buffer
+		"/sys/class/gpio/gpio#/value"
+		pin is #
+	opens a file descriptor to that path
+	writes HIGH or LOW to that path in char* format
+	closes the file descriptor
+
+static int GPIO_read( int pin )
+	opens a file descriptor to "/sys/class/gpio/gpio#/value"
+		pin is "
+	reads from that file descriptor to a local "char buffer []"
+	closes that file descriptor
+	calls atoi, passes the local buffer as an arg, on return
+
+main
+	call order:
+		GPIO_export for all requisite pins (IN and OUT)
+		GPIO_direction for each respective pin
+		GPIO_write as necessary
+		GPIO_read as necessary
+		GPIO_unexport for all requisite pins (IN and OUT)

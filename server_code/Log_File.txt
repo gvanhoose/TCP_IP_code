@@ -1,0 +1,12 @@
+Timestamp=Event Description
+
+Sat Mar 18 01:26:09 2017=Hello World!
+Sat Mar 18 01:31:45 2017=Hello World!
+Sat Mar 18 02:15:33 2017=Hello World!
+Sat Mar 18 02:15:33 2017=Taxation is theft
+Tue Mar 28 05:44:40 2017=new call to "openSocketAndBind".  Result:
+Tue Mar 28 05:44:40 2017=success
+Tue Mar 28 12:02:04 2017=new call to "openSocketAndBind".  Result:
+Tue Mar 28 12:02:04 2017=success
+Tue Mar 28 12:03:45 2017=new call to "openSocketAndBind".  Result:
+Tue Mar 28 12:03:45 2017=success

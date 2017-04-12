@@ -14,14 +14,16 @@ void auditPinRequests( const struct Pin_Request* requests, int n_requests )
 int main( int argc, char* argv [] )
 {
 
-	int n_requests = atoi( argv [1] );	// clean this up later, check for errors
+//	int n_requests = atoi( argv [1] );	// clean this up later, check for errors
+//
+//	if( n_requests == 0 || n_requests > MAX_PIN_COUNT )
+//	{
+//		exit( PIN_COUNT_ERROR );
+//	}
 
-	if( n_requests == 0 || n_requests > MAX_PIN_COUNT )
-	{
-		exit( PIN_COUNT_ERROR );
-	}
+	int n_requests = argc - 1;	// replaces LOTS of code, and eliminates an arg from the commandline to launch this program!
 
-	struct Pin_Request requests [n_requests];
+	struct Pin_Request requests [ n_requests ];
 
 	int buildReturnValue;
 

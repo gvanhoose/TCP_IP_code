@@ -1,21 +1,21 @@
 #include "gpio.h"
 
-int buildPinRequests( int argc, char* argv [], struct Pin_Request pinRequests [], int n_requests )
+int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinRequests [] )
 {
-	if( argc < MIN_ARGS )
+	if( n_requests < MIN_ARGS )
 	{
 //		log_error( "too few arguments" );
 		return ERROR;
 	}
 
-	int pin_count;
-	if( (pin_count = atoi( argv[ PIN_COUNT_INDEX ] )) == 0 )
-	{
-//		log_error( "No pin count provided" );
-		return ERROR;
-	}
-
-	if( pin_count < 0 || pin_count > MAX_PIN_COUNT )
+//	int pin_count;
+//	if( (pin_count = atoi( argv[ PIN_COUNT_INDEX ] )) == 0 )
+//	{
+////		log_error( "No pin count provided" );
+//		return ERROR;
+//	}
+//
+	if( n_requests > MAX_PIN_COUNT )
 	{
 //		log_error( "Pin count is too high" );
 		return ERROR;
@@ -24,7 +24,7 @@ int buildPinRequests( int argc, char* argv [], struct Pin_Request pinRequests []
 //	struct Pin_Request pinRequests [ pin_count ];
 
 	int i;
-	for( i = 0; i < pin_count; i++ )
+	for( i = 0; i < n_requests; i++ )
 	{
 		char* current = argv[ i + PIN_COUNT_INDEX + 1 ];
 		char* rawPinNumber;
@@ -36,13 +36,13 @@ int buildPinRequests( int argc, char* argv [], struct Pin_Request pinRequests []
 		if( (rawPinNumber = strtok( current, PIN_NUMBER_DEMARKER )) == NULL )
 		{
 //			log_error( "Invalid argument, missing pin number or incorrectly formatted" );
-			return ERROR;
+			return PIN_REQUEST_ERROR( i );
 		}
 
 		if( (rawDirection = strtok( NULL, PIN_DIRECTION_DEMARKER )) == NULL )
 		{
 //			log_error( "Invalid argument, missing pin direction or incorrectly formatted" );
-			return ERROR;
+			return PIN_REQUEST_ERROR( i );
 		}
 
 		rawWriteValue = strtok( NULL, PIN_TO_WRITE_DEMARKER );

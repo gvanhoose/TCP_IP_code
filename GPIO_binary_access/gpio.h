@@ -40,15 +40,18 @@
 #define UNMASK_BAD_REQUEST_INDEX(y)	( y & 0x0ff )	// strips away the superfluous 2nd through Most-Significant bytes, leaving only the pin number that contains bad information
 #define IS_NON_REQUEST_ERROR(z)		((z & 0xff < 0xff )	// if it is a non-request-related error, then the entire least-significant byte will be 0xff -- there aren't enough pins to even get close to this value!
 #define PIN_COUNT_ERROR			-2
-
+#define DIR_OPEN_ERROR			-3
+#define DIR_WRITE_ERROR			-4
+#define DIR_CLOSE_ERROR			-5
+#define WR_OPEN_ERROR			-6
 struct Pin_Request
 {
 	char* direction;
 	int pin_number, value;
 };
 
-int executeRequests( struct Pin_Request[], int );
+int executeRequests( int, struct Pin_Request[] );
 
-int buildPinRequests( int, char*[], struct Pin_Request[], int );
+int buildPinRequests( int, char*[], struct Pin_Request[] );
 
 #endif	// _GPIO_H_

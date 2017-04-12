@@ -156,12 +156,12 @@ int executeRequests( int n_requests, struct Pin_Request requests [] )
 		FILE* rw_stream;
 		char val_str [2];
 
-		if( strcmp( OUT_STR, current.direction ) == 0 )
+		if( strcmp( OUT, current.direction ) == 0 )
 		{
 			// write
 			if( (rw_stream = fopen( rwPath, FILE_WRITE  )) == NULL )
 			{
-				return WR_OPEN_ERROR
+				return WR_OPEN_ERROR;
 			}
 
 			memset( val_str, '\0', 2 );
@@ -169,10 +169,10 @@ int executeRequests( int n_requests, struct Pin_Request requests [] )
 
 			if( fwrite( val_str, 1, 2, rw_stream ) < 0 )
 			{
-				return PIN_REQUEST_ERROR( x );
+				return PIN_REQUEST_ERROR( i );
 			}
 		}
-		else if( strcmp( IN_STR, current.direction ) == 0 )
+		else if( strcmp( IN, current.direction ) == 0 )
 		{
 			if( (rw_stream = fopen( rwPath, FILE_READ )) == NULL )
 			{
@@ -190,14 +190,15 @@ int executeRequests( int n_requests, struct Pin_Request requests [] )
 			{
 				return PIN_REQUEST_ERROR( i );
 			}
+		}
 		else
 		{
 //			logError( "Unknown pin request" );
 			return ERROR;
 		}
 
-		int clReturn
-		if( ( (clReturn = fclose( rw_stream ) == NULL ) || (clReturn ==  NULL)
+		int clReturn;
+		if( (clReturn = fclose( rw_stream ) != 0x0) || (clReturn !=  EOF))
 		{
 			return PIN_REQUEST_ERROR( i );
 		}

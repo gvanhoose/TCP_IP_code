@@ -27,7 +27,7 @@ int main( int argc, char* argv [] )
 
 	int buildReturnValue;
 
-	if( buildReturnValue = (buildPinRequests( argc, argv, requests, n_requests )) != SUCCESS )
+	if( ( buildReturnValue = buildPinRequests( n_requests, argv, requests )) != SUCCESS )
 	{
 		// code to attempt to fix could go here, if you wanted...
 		exit(buildReturnValue);

@@ -26,24 +26,38 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 	int i;
 	for( i = 0; i < n_requests; i++ )
 	{
-		char* current = argv[ i + PIN_COUNT_INDEX + 1 ];
+//		printf( "segfault found?\n" );
+//		char* current = argv[ i + PIN_COUNT_INDEX + 1 ];
+//		printf( "nope!\n" );
+
+		int curLength = strlen( argv[ i + FIRST_REQUEST_INDEX ] ) + 1;
+		char current [ curLength];
+		memset( current, '\0', curLength );
+
+		strcpy( current, argv[ i + FIRST_REQUEST_INDEX ] );
+
 		char* rawPinNumber;
 		char* rawDirection;
 		char* rawWriteValue;
 
 		int pinNumber, pinValue;
+//		printf( "current == \"%s\"", current );
 
 		if( (rawPinNumber = strtok( current, PIN_NUMBER_DEMARKER )) == NULL )
 		{
+//			printf( "reaching error state\n" );
 //			logError( "Invalid argument, missing pin number or incorrectly formatted" );
 			return PIN_REQUEST_ERROR( i );
 		}
+//		printf( "reaching\n" );
 
 		if( (rawDirection = strtok( NULL, PIN_DIRECTION_DEMARKER )) == NULL )
 		{
 //			logError( "Invalid argument, missing pin direction or incorrectly formatted" );
+			printf( "Invalid argument, missing pin direction or incorrectly formatted\n" );
 			return PIN_REQUEST_ERROR( i );
 		}
+		printf( "\traw direction:  \"%s\"\n", rawDirection );
 
 		rawWriteValue = strtok( NULL, PIN_TO_WRITE_DEMARKER );
 
@@ -69,7 +83,9 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 			return PIN_REQUEST_ERROR( i );
 		}
 
+//		printf( "reaching\n" );
 		pinRequests[ i ].pin_number = pinNumber;
+//		printf( "reaching\n" );
 
 		if( strcmp( IN, rawDirection) == 0 )
 		{
@@ -78,6 +94,7 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 //				log_error( "value specified on read request" );
 				return PIN_REQUEST_ERROR( i );
 			}
+//			strcpy( pinRequests[i].direction, rawDirection );
 			pinRequests[ i ].direction = rawDirection;
 			pinRequests[ i ].value = UNREAD;
 
@@ -90,13 +107,17 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 
 		else if( strcmp( OUT, rawDirection ) == 0 )
 		{
+//			printf( "Reaching\n" );
 			if( rawWriteValue == NULL )
 			{
 //				log_error( "value not specified on write request" );
 				return PIN_REQUEST_ERROR( i );
 			}
+//			strcpy( pinRequests[i].direction, rawDirection );
 			pinRequests[ i ].direction = rawDirection;
 			pinRequests[ i ].value = ( strcmp( HIGH_STR, rawWriteValue ) == 0 )? ACTIVE_HIGH : ( strcmp( LOW_STR, rawWriteValue ) == 0 )? ACTIVE_LOW : -1;
+
+//			printf( "pinRequests[i].direction == \"%s\"\n", pinRequests[i].direction );
 
 			if( pinRequests[ i ].value == -1 )
 			{
@@ -112,6 +133,7 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 			return PIN_REQUEST_ERROR( i );
 		}
 	}
+printf( "reaching\n" );
 
 	return SUCCESS;
 }

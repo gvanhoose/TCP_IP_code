@@ -8,6 +8,8 @@
 #define IN		"in"
 #define OUT		"out"
 
+#define FIRST_REQUEST_INDEX 1
+
 #define UNREAD		-1
 #define ACTIVE_LOW	0
 #define ACTIVE_HIGH	1
@@ -27,7 +29,7 @@
 #define MAX_PIN_NUMBER	27
 
 
-#define PIN_NUMBER_DEMARKER	":"
+#define PIN_NUMBER_DEMARKER	","
 #define PIN_DIRECTION_DEMARKER	"="
 #define PIN_TO_WRITE_DEMARKER	"\0"
 

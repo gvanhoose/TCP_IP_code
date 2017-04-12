@@ -180,7 +180,8 @@ int executeRequests( int n_requests, struct Pin_Request requests [] )
 			}
 
 			char val_str [2];
-			snprintf( val_str, 2, "%d", current.value );
+			memset( val_str, '\0', 2 );
+//			snprintf( val_str, 2, "%d", current.value );
 
 			if( fread( val_str, 1, 2, rw_stream ) < 0 )
 			{
@@ -188,7 +189,8 @@ int executeRequests( int n_requests, struct Pin_Request requests [] )
 			}
 			if( val_str[1] != '\0' )
 			{
-				return PIN_REQUEST_ERROR( i );
+				printf( "Warning:  Non-null-terminating character at the end of val_str after read.  Observe and investigate for erratic behavior\n" );
+//				return PIN_REQUEST_ERROR( i );
 			}
 		}
 		else

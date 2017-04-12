@@ -1,5 +1,11 @@
 all:
 
+export:
+	gcc export_pin.c -o exportPin
+
+unexport:
+	gcc unexport_pin.c -o unexportPin
+
 gpio:
 	gcc gpio_wrapper.c gpio_access.c -o pin_access
 

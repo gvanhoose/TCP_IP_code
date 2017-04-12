@@ -17,6 +17,7 @@
 
 #define FILE_WRITE	"w"
 #define FILE_READ	"r"
+#define BUFFER_LENGTH	50
 
 #define MIN_ARGS	1	// seems kinda pedantic, but this was at one point defined as 0x3
 

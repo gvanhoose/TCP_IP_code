@@ -35,13 +35,13 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 
 		if( (rawPinNumber = strtok( current, PIN_NUMBER_DEMARKER )) == NULL )
 		{
-//			log_error( "Invalid argument, missing pin number or incorrectly formatted" );
+//			logError( "Invalid argument, missing pin number or incorrectly formatted" );
 			return PIN_REQUEST_ERROR( i );
 		}
 
 		if( (rawDirection = strtok( NULL, PIN_DIRECTION_DEMARKER )) == NULL )
 		{
-//			log_error( "Invalid argument, missing pin direction or incorrectly formatted" );
+//			logError( "Invalid argument, missing pin direction or incorrectly formatted" );
 			return PIN_REQUEST_ERROR( i );
 		}
 
@@ -53,20 +53,20 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 			( strcmp( IN, rawDirection  ) == 0 && rawWriteValue != NULL )
 		  )
 		{
-//			log_error( "Write value specified with request to Read, or no value specified with request to Write" );
-			return ERROR;
+//			logError( "Write value specified with request to Read, or no value specified with request to Write" );
+			return PIN_REQUEST_ERROR( i );
 		}
 
 		if( (pinNumber = atoi( rawPinNumber )) == 0 )
 		{
-//			log_error( "Invalid Pin Number" );
-			return ERROR;
+//			logError( "Invalid Pin Number" );
+			return PIN_REQUEST_ERROR( i );
 		}
 
 		if( pinNumber < MIN_PIN_NUMBER || pinNumber > MAX_PIN_NUMBER )
 		{
 //			log_error( "Invalid pin number, out of range" );
-			return ERROR;
+			return PIN_REQUEST_ERROR( i );
 		}
 
 		pinRequests[ i ].pin_number = pinNumber;
@@ -76,7 +76,7 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 			if( rawWriteValue != NULL )
 			{
 //				log_error( "value specified on read request" );
-				return ERROR;
+				return PIN_REQUEST_ERROR( i );
 			}
 			pinRequests[ i ].direction = rawDirection;
 			pinRequests[ i ].value = UNREAD;
@@ -93,7 +93,7 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 			if( rawWriteValue == NULL )
 			{
 //				log_error( "value not specified on write request" );
-				return ERROR;
+				return PIN_REQUEST_ERROR( i );
 			}
 			pinRequests[ i ].direction = rawDirection;
 			pinRequests[ i ].value = ( strcmp( HIGH_STR, rawWriteValue ) == 0 )? ACTIVE_HIGH : ( strcmp( LOW_STR, rawWriteValue ) == 0 )? ACTIVE_LOW : -1;
@@ -101,7 +101,7 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 			if( pinRequests[ i ].value == -1 )
 			{
 //				log_error( "value not correctly specified on write" );
-				return ERROR;
+				return PIN_REQUEST_ERROR( i );
 			}
 
 			continue;
@@ -109,7 +109,7 @@ int buildPinRequests( int n_requests, char* argv [], struct Pin_Request pinReque
 		else
 		{
 //			log_error( "pin direction not accurately specified" );
-			return ERROR;
+			return PIN_REQUEST_ERROR( i );
 		}
 	}
 
@@ -154,26 +154,53 @@ int executeRequests( int n_requests, struct Pin_Request requests [] )
 		}
 
 		FILE* rw_stream;
+		char val_str [2];
 
 		if( strcmp( OUT_STR, current.direction ) == 0 )
 		{
-			// read
-		}
-		if( strcmp( IN_STR, current.direction ) == 0 )
-		{
-			if( (rw_stream = fopen( rwPath, FILE_WRITE )) == NULL )
+			// write
+			if( (rw_stream = fopen( rwPath, FILE_WRITE  )) == NULL )
 			{
-				return WR_OPEN_ERROR;
+				return WR_OPEN_ERROR
+			}
+
+			memset( val_str, '\0', 2 );
+			snprintf( val_str, 2, "%d", current.value );
+
+			if( fwrite( val_str, 1, 2, rw_stream ) < 0 )
+			{
+				return PIN_REQUEST_ERROR( x );
+			}
+		}
+		else if( strcmp( IN_STR, current.direction ) == 0 )
+		{
+			if( (rw_stream = fopen( rwPath, FILE_READ )) == NULL )
+			{
+				return PIN_REQUEST_ERROR( i );
 			}
 
 			char val_str [2];
 			snprintf( val_str, 2, "%d", current.value );
-			if( fwrite( val_str, 1, 2, rw_stream ) < 0 )
+
+			if( fread( val_str, 1, 2, rw_stream ) < 0 )
 			{
-				return WR_WRIE_ERROR;
+				return PIN_REQUEST_ERROR( i );
 			}
-			if( fclose( rw_stream ) != EOF )
+			if( val_str[1] != '\0' )
 			{
-				return WR_CLOSE_ERROR;
+				return PIN_REQUEST_ERROR( i );
 			}
+		else
+		{
+//			logError( "Unknown pin request" );
+			return ERROR;
+		}
+
+		int clReturn
+		if( ( (clReturn = fclose( rw_stream ) == NULL ) || (clReturn ==  NULL)
+		{
+			return PIN_REQUEST_ERROR( i );
+		}
+	}
+
 }

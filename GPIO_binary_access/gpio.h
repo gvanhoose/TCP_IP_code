@@ -6,7 +6,9 @@
 #include <string.h>
 
 #define IN		"in"
+#define INPUT		1	// for use in the Pin_Request struct
 #define OUT		"out"
+#define OUTPUT		0	// for use in the Pin_Request struct
 
 #define FIRST_REQUEST_INDEX 1
 
@@ -49,7 +51,7 @@
 struct Pin_Request
 {
 	char* direction;
-	int pin_number, value;
+	int pin_number, value, dir;
 };
 
 int executeRequests( int, struct Pin_Request[] );

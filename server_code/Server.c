@@ -234,7 +234,7 @@ int receiveMessage( int listenerFD, char* target )
 
 	printf( "in receiveMessage(...)\n" );
 
-	listen( listenerFD, BACKLOG_MAX );
+//	listen( listenerFD, BACKLOG_MAX );
 
 	int clientFD;
 
@@ -256,7 +256,8 @@ int receiveMessage( int listenerFD, char* target )
 		return LREAD_ERROR;
 	}
 
-	close( clientFD );	// possible bug fix, a missing call?
+//	this just made things worse
+//	close( clientFD );	// possible bug fix, a missing call?
 
 	target[ bytesRead ] = NULL_CHAR;
 
@@ -355,6 +356,8 @@ receiveMessage will wait until a client establishes a connection
  * commented-out while testing arg-buidling functionality in spawnProcess
  */
 	int recReturnValue, keepGoing = TRUE;
+
+	listen( listenerFD, BACKLOG_MAX );	// moved from inside "receiveMessage(...)", since multiple calls might be causing server to crash
 
 	while( keepGoing )
 	{

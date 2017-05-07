@@ -21,7 +21,7 @@
 
 #define BUFFER_LENGTH 128
 #define NULL_CHAR '\0'
-#define DEFAULT_PORT_NUMBER 5000
+#define DEFAULT_PORT_NUMBER 5100
 #define BACKLOG_MAX 1
 #define TRUE 1
 #define FALSE 0
@@ -75,6 +75,8 @@ int spawnProcess( char*  arg)
 {
 //	printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until proper functionality confirmed to this point!)\n", arg );
 
+//	printf( "reaching process spawn with directive: \n\t\"%s\"\n", arg );
+
 	int argLen = strlen( arg ), nargs = get_nargs( arg, argLen );
 
 	char* args [ nargs ];
@@ -91,26 +93,28 @@ int spawnProcess( char*  arg)
 /*
  * commented-out for testing only!
  */
-	pid_t currentPID = getpid();
+//	pid_t currentPID = getpid();
 
-	pid_t returnedPID = fork();
+	pid_t returnedPID = fork();	// the child return has 0x0 for this value, parent return has child pid for this value
 
-	if( returnedPID  < 0 )
+	if( returnedPID  < 0 )		// fork failed code
 	{
 //		logAll( "Fork Failed" );
-		printf( "Fork fail" );
+//		printf( "Fork fail" );
 		return( LFORK_FAIL );
 	}
-	if( returnedPID == 0 )
+	if( returnedPID > 0 )		// parent code
 	{
 
-		printf( "parent waiting\n" );
+//		sleep(3);	// testing only
+
+//		printf( "parent waiting\n" );
 
 		// parent process execution
 		if( wait() != 0)		// may not need to wait, but we should take care to avoid the zombie apocalypse.
 		{
 
-			printf( "child did not execute properly\n" );
+//			printf( "child did not execute properly\n" );
 
 //			logError( "Child did not execute properly" );
 		}
@@ -118,7 +122,7 @@ int spawnProcess( char*  arg)
 		return 0;	// parent process
 	}
 
-// program only proceeds to this area IF returned_PID is positive and nonzero
+// child code
 
 	pid_t childPID = getpid();
 
@@ -276,14 +280,14 @@ int receiveMessage( int listenerFD, char* target )
 //		}
 ////	}
 
-	if( target[0] == QUIT_CHAR && strlen( target ) == 1 )
-	{
-
-		printf( "quit program(?)\n" );
-		close( clientFD );
-
-		return QUIT_PROGRAM;
-	}
+//	if( target[0] == QUIT_CHAR && strlen( target ) == 1 )
+//	{
+//
+////		printf( "quit program(?)\n" );
+//		close( clientFD );
+//
+//		return QUIT_PROGRAM;
+//	}
 
 	printf( "success\n" );
 
@@ -319,8 +323,8 @@ At this point:
 		}
 		if( listenerFD == LBIND_ERROR );
 		{
-			printf( "main:  Bind error\n" );
-//			perror( "bind error" );
+//			printf( "main:  Bind error\n" );
+			perror( "bind error" );
 		}
 
 
@@ -350,7 +354,7 @@ receiveMessage will wait until a client establishes a connection
 //	logEvent( pid_str );
 
 
-	printf( "Starting to listen. %s\n", pid_str );
+//	printf( "Starting to listen. %s\n", pid_str );
 
 /*
  * commented-out while testing arg-buidling functionality in spawnProcess
@@ -365,8 +369,31 @@ receiveMessage will wait until a client establishes a connection
 
 		if( (recReturnValue = receiveMessage( listenerFD, instruction )) >= 0 )
 		{
-			printf( "Spawning:  %s\n", instruction );
-			spawnProcess( instruction );
+
+			int instrLen = strlen( instruction );
+
+			instruction[ instrLen - 2 ] = '\0';
+
+			printf( "Spawning:  \"%s\"\n", instruction );
+
+//			int i;
+//			for( i = 0; i < strlen( instruction ); i++ )
+//			{
+//				printf( " %x", instruction[i] );
+//			}
+//			printf( "\n" );
+
+			if( (instrLen = strlen( instruction )) == 1 && *instruction == 'q' )	// mostly for testing, but helpful to be able to exit safely
+			{
+				break;
+			}
+
+//			if( strcmp( "q", instruction ) == 0 )
+//			{
+//				break;
+//			}
+
+			spawnProcess( instruction );	// keep this isolated for now...
 			continue;
 		}
 
@@ -383,20 +410,24 @@ receiveMessage will wait until a client establishes a connection
 			case LACCEPT_ERROR:
 			{
 				// TODO: perror(); printf(); etc. as may be neccessary
+				printf( "accept error\n" );
 				break;
 			}
 			case LREAD_ERROR:
 			{
 				// TODO: same as LACCEPT_ERROR
+				printf( "read error\n" );
 				break;
 			}
 			case QUIT_PROGRAM:
 			{
 				keepGoing = FALSE;
+//				printf( "quit error (why is this still here?!)\n" );
 				break;
 			}
 			default:
 			{
+				printf( "this really shouldn't have executed\n" );
 				break;
 			}
 		}

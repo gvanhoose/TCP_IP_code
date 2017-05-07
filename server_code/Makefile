@@ -22,3 +22,6 @@ tm_test:
 
 log_test:
 	gcc test_Server_Log.c Server_Log.c Timestamp.c -o logTest
+
+temp:
+	gcc temp.c -o temp

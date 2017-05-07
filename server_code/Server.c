@@ -19,42 +19,29 @@
 #include "Server_Log.h"
 #include "Arg_Builder.h"
 
-#define BUFFER_LENGTH 128
-#define NULL_CHAR '\0'
-#define DEFAULT_PORT_NUMBER 5100
-#define BACKLOG_MAX 1
-#define TRUE 1
-#define FALSE 0
-#define SYSTEM_ERROR_NUMBER -1
-#define LSOCKET_ERROR -3
-#define LBIND_ERROR -2
-#define QUIT_PROGRAM -4
-#define LBAD_ARG_ERROR -5
-#define QUIT_CHAR 'q'
-#define LREAD_ERROR -6
-#define LACCEPT_ERROR -7
-#define LFORK_FAIL -8
-#define LEXECV_FAIL -9
+#define BUFFER_LENGTH		128
+#define DEFAULT_PORT_NUMBER	5000
+#define BACKLOG_MAX		1	// this is the maximum number of connections that the server can handle at any one time
 
-/**
- * A simple function that prints a message to console.
- * For use with debugging.
- */
-void dbug()
-{
-/*
- * shunting any stray calls to dbug()
- */
-	printf( "Reaching\n" );
-/*
- */
-}
+#define QUIT_CHAR	'q'
+#define NULL_CHAR	'\0'
 
-// TODO:  Program needs to identify and flag invalid arguments.
-//	most of the time this can be solved by merely requesting a retransmit
-//	(especially since the original call (via the TCP_IP socket protocols)
-//	is initiated by pressing a pre-set button
-//	like a particular mouse-event
+#define TRUE		1
+#define FALSE		0
+
+#define SUCCESS			0
+#define SYSTEM_ERROR_NUMBER	-1
+#define LSOCKET_ERROR		-3
+#define LBIND_ERROR		-2
+#define QUIT_PROGRAM		-4
+#define LBAD_ARG_ERROR		-5
+#define LREAD_ERROR		-6
+#define LACCEPT_ERROR		-7
+#define LFORK_FAIL		-8
+#define LEXECV_FAIL		-9
+#define LWAIT_FAIL		-10
+#define LLISTEN_ERROR		-11
+
 /**
  * spawnProcess
  *
@@ -73,72 +60,54 @@ void dbug()
  */
 int spawnProcess( char*  arg)
 {
-//	printf( "Reaching process spawn, with directive: \n\t%s\n(note:  No fork until proper functionality confirmed to this point!)\n", arg );
-
-//	printf( "reaching process spawn with directive: \n\t\"%s\"\n", arg );
-
 	int argLen = strlen( arg ), nargs = get_nargs( arg, argLen );
 
 	char* args [ nargs ];
 
 	int i;
-	for( i = 0; i < nargs; i++ )	// have to initialize args & ensure it ready to go
+	for( i = 0; i < nargs; i++ )
 	{
-		args[i] = malloc( argLen + 1 );
-		memset( args[i], '\0', argLen + 1 );
+		args[i] = malloc( argLen + 1 );		// guarantees each string in args will be able to contain any argument
+		memset( args[i], '\0', argLen + 1 );	// good form to initialize the whole string to the null-term
 	}
 
+	// translates the single string sent by the client to the "char* argv []" format required by execv()
 	build_args( args, arg, argLen, nargs );
 
-/*
- * commented-out for testing only!
- */
-//	pid_t currentPID = getpid();
+	pid_t returnedPID = fork();	// Remember:  When returning from fork(), the child has 0x0 for this value, parent has the child pid for this value
 
-	pid_t returnedPID = fork();	// the child return has 0x0 for this value, parent return has child pid for this value
-
-	if( returnedPID  < 0 )		// fork failed code
+	// fork fail
+	if( returnedPID  < 0 )
 	{
-//		logAll( "Fork Failed" );
-//		printf( "Fork fail" );
-		return( LFORK_FAIL );
+		logAll( "Fork failed" );
+		return LFORK_FAIL;
 	}
-	if( returnedPID > 0 )		// parent code
+
+	// parent code
+	if( returnedPID > 0 )
 	{
-
-//		sleep(3);	// testing only
-
-//		printf( "parent waiting\n" );
-
 		// parent process execution
 		if( wait() != 0)		// may not need to wait, but we should take care to avoid the zombie apocalypse.
 		{
-
-//			printf( "child did not execute properly\n" );
-
-//			logError( "Child did not execute properly" );
+			logAll( "Wait failed" );
+			return LWAIT_FAIL;
 		}
-
-		return 0;	// parent process
+		return SUCCESS;
 	}
 
-// child code
+	// child code
 
 	pid_t childPID = getpid();
 
 	execv( args[0], args );
-// the following code executes only if there was an error in the spawned process
 
-//	logError( "execv failed while attempting to execute the following:" );
+	// if the following lines executes, then execv failed
 
 	char* errPrint = ("execv failed while attempting to execute:  %s", arg);
 
-//	logError( errPrint );
+	logError( errPrint );
 
 	exit( LEXECV_FAIL );
-/*
- */
-
 }
 
 /**
@@ -146,29 +115,18 @@ int spawnProcess( char*  arg)
  *
  *	PARAMETERS:
  *		struct sockaddr_in sockAddr
- *			The internet socket address struct, which is laid out as follows:
-
-struct sockaddr_in
-{
-	short		sin_family;	// the type of connection.  Commonly AF_INET for IPv4 connections (IPv4 uses the nnn.nnn.nnn.nnn IP address format; IPv6 uses the xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx address format)
-	unsigned short	sin_port;	// the port number to be used for communication (typically htons(n) should be used to provide the argument for this variable, rather than entering the port number directly
-	struct in_addr	sin_addr;	// a struct which serves as a wrapper for the IP address
-	char		sin_zero[8];	// unknown / research more / not used here
-};
-
- * and:
-
-struct in_addr
-{
-	unsigned long	s_addr;		// the IP address.  htonl(n) should be used to construct this appropriately
-};
-
+ *			The internet socket address struct
+ *			Contents:
+ *				type of connection
+ *				port number
+ *				ip address struct ( struct in_addr, which contains single variable for the IP address )
  *
  *	RETURN:
- *		On success:  The file descriptor for the socket which was open and bound by this function
+ *		On success:  The file descriptor for the socket which was open, bound, and on which listen is called
  *		On error:
- *			LSOCKET_ERROR	if the socket(...) call could not be executed properly
- *			LBIND_ERROR	if the bind(...) call could not be executed properly
+ *			LSOCKET_ERROR	if the socket() call could not be executed properly
+ *			LBIND_ERROR	if the bind() call could not be executed properly
+ *			LLISTEN_ERROR	if the listen() call could not be executed properly
  *
  *	NOTE:
  *		The caller need not worry about setting any values to sockAddr.
@@ -179,17 +137,11 @@ struct in_addr
 int openSocketAndBind(struct sockaddr_in sockAddr)
 {
 
-//	logEvent( "new call to \"openSocketAndBind\".  Result:" );
-	printf( "in openSocketAndBind(...)\n" );
-
-
 	int listenerFD;
 
-	if( (listenerFD = socket( AF_INET, SOCK_STREAM, 0 )) == SYSTEM_ERROR_NUMBER )
+	// first, get the file descriptor of the desired socket
+	if( (listenerFD = socket( AF_INET, SOCK_STREAM, 0 )) < 0 )
 	{
-//		perror( "socket error" );
-//		logAll( "socket error" );
-		printf( "socket error\n" );
 		return LSOCKET_ERROR;
 	}
 
@@ -199,16 +151,17 @@ int openSocketAndBind(struct sockaddr_in sockAddr)
 	sockAddr.sin_addr.s_addr = htonl( INADDR_ANY );
 	sockAddr.sin_port = htons( DEFAULT_PORT_NUMBER );
 
-	if( bind( listenerFD, (struct sockaddr*) &sockAddr, sizeof( sockAddr ) ) == SYSTEM_ERROR_NUMBER )
+	// binding the socket couples the socket (pointed to by listenerFD) to this pid
+	if( bind( listenerFD, (struct sockaddr*) &sockAddr, sizeof( sockAddr ) ) < 0 )
 	{
-//		perror( "bind error" );
-//		logAll( "bind error" );
-		printf( "bind error\n" );
 		return LBIND_ERROR;
 	}
 
-//	logEvent( "success" );
-	printf( "success\n" );
+	// essentially, this configures the socket for input on the socket (see "man 2 listen")
+	if( listen( listenerFD, BACKLOG_MAX ) < 0 )
+	{
+		return LLISTEN_ERROR;
+	}
 
 	return listenerFD;
 
@@ -223,222 +176,143 @@ int openSocketAndBind(struct sockaddr_in sockAddr)
  *
  *	RETURN:
  *		0 on success
- *		LACCEPT_ERROR	The call to accept(...) was not executed properly
- *		LREAD_ERROR	The call to read(...) was not executed properly
- *		QUIT_PROGRAM	This is not an error, but a signal was received from the client that the entire server program needs to be closed.
+ *		LACCEPT_ERROR	The call to accept() was not executed properly
+ *		LREAD_ERROR	The call to read() was not executed properly
  *
  *	NOTES:
- *		The program waits at the accept(...) call for a connection from a client.
- *		The call to listen(...) prepares the program for a number of connections, as defined by BACKLOG_MAX.  This may be changed, but for now it is set to 1
+ *		The program waits at the accept() call for a connection from a client.
  *		Erroneous return from this function does not doom the program.  It simply means that a particular connection was unsuccessful.  Client will have to try again.  Investigation required if this becomes a repeat problem.
  *
  */
 int receiveMessage( int listenerFD, char* target )
 {
-
-	printf( "in receiveMessage(...)\n" );
-
-//	listen( listenerFD, BACKLOG_MAX );
-
 	int clientFD;
 
-//	printf( "Awaiting message.\n" );
-
+	// program waits here until client connects
 	if( (clientFD = accept( listenerFD, (struct sockaddr*) NULL, NULL )) < 0 )
 	{
-		printf( "accept error\n" );
 		return LACCEPT_ERROR;
 	}
 
-//	printf( "Message received!\n" );
-
-	// this may require a loop to capture all of the message.
+	// retrieves the data sent by the client
 	int bytesRead;
 	if( (bytesRead = read( clientFD, target, BUFFER_LENGTH - 1 )) < 0 )
 	{
-		printf( "read error\n" );
 		return LREAD_ERROR;
 	}
 
-//	this just made things worse
-//	close( clientFD );	// possible bug fix, a missing call?
-
+	// place the null-terminator at the end of the data
 	target[ bytesRead ] = NULL_CHAR;
 
-// keep this block around, just in case...
-////	int bytesRead = 0;
-//
-////	while( (bytesRead = read( clientFD, target, sizeof( target ) - 1)) > 0 )
-////	{
-//		totalBytesRead += iterBytesRead;
-
-////		target[ bytesRead ] = NULL_CHAR;
-//
-//		if( fputs( target, stdout ) == EOF )
-//		{
-//			printf( "fputs error" );
-//		}
-////	}
-
-//	if( target[0] == QUIT_CHAR && strlen( target ) == 1 )
-//	{
-//
-////		printf( "quit program(?)\n" );
-//		close( clientFD );
-//
-//		return QUIT_PROGRAM;
-//	}
-
-	printf( "success\n" );
-
-	return 0;
+	return SUCCESS;
 }
 
 int main( int argc, char* argv[] )
 {
+	logAll( "\n=======================================================\n" );
 
-	printf( "launching server\n" );
+	// Good idea:  Record the pid of this program
+	char pid_str [35];
+	memset( pid_str, '\0', 35 );
+
+	snprintf( pid_str, 35, "Server PID:  %d", getpid() );
+
+	logEvent( pid_str );
+
 
 	struct sockaddr_in sockAddr;
 
 	int listenerFD;
-/**
- *
-At this point:
-	openSocketAndBind(...) opens a socket on the RPi, and binds it
-	if FALSE
-		if the function returns a negative number, then an error has occurred.
-		handling these potential errors will need to be much more robust
-	on TRUE
-		listenerFD will contain a file descriptor detailing where to find the socket
-		the socket will also be bound
- *
- */
-	if( (listenerFD = openSocketAndBind( sockAddr )) < 0 )
+
+	// openSocketAndBind does four things:
+	//	opens the socket
+	//	binds the socket to this program
+	//	configures this program to listen for input on that socket
+	//	returns
+	//		SUCCESS:	The file descriptor for the socket
+	//		ERROR:		An error code
+	// IMPORTANT:
+	//	If openSocketAndBind returns an error code, it is very possible that this program need only wait for the kernel to release the socket
+	//	therefore, the program is given infinite attempts at this functionality, since nothing else can happen anyway!
+	//	typical wait should be about one minute
+	//
+//	if( (listenerFD = openSocketAndBind( sockAddr )) < 0 )
+	while( (listenerFD = openSocketAndBind( sockAddr)) < 0 )
 	{
 		if( listenerFD == LSOCKET_ERROR )
 		{
-//			perror( "socket error" );
-			printf( "main:  Socket error\n" );
+			logError( "Open socket error" );
 		}
 		if( listenerFD == LBIND_ERROR );
 		{
-//			printf( "main:  Bind error\n" );
-			perror( "bind error" );
+			logError( "Bind socket error" );
 		}
 
-
-		exit( SYSTEM_ERROR_NUMBER );
+		sleep( 20 );			// sleeping for 20 seconds may give the OS enough time to clear out the error
+//		return SYSTEM_ERROR_NUMBER;	// remains commented-out while this is part of a while loop
+//		exit( SYSTEM_ERROR_NUMBER );
 	}
+	logEvent( "Socket ready" );
 
-	char instruction [BUFFER_LENGTH];
+	char instruction [BUFFER_LENGTH];	// the buffer which will hold the data sent by the client
 
-/**
- *
-receiveMessage will wait until a client establishes a connection
-	on FALSE
-		program will terminate safely.
-	on TRUE
-		instruction will contain the name of a program to be executed
-		instruction will also contain any ancillary arguments for such execution
-		call to spawnProcess(...) will create a new process
-		this new process will execute the program described by instruction
- *
- */
-
-	char pid_str [25];
-	memset( pid_str, '\0', 25 );
-
-	snprintf( pid_str, 25, "Server PID:  %d\n", getpid() );
-
-//	logEvent( pid_str );
-
-
-//	printf( "Starting to listen. %s\n", pid_str );
-
-/*
- * commented-out while testing arg-buidling functionality in spawnProcess
- */
-	int recReturnValue, keepGoing = TRUE;
+	int recReturnValue;
 
 	listen( listenerFD, BACKLOG_MAX );	// moved from inside "receiveMessage(...)", since multiple calls might be causing server to crash
 
-	while( keepGoing )
+	while( TRUE )
 	{
-		printf( "Listening\n" );
-
+		// receiveMessage waits for a connection, then populates the buffer named "instruction"
 		if( (recReturnValue = receiveMessage( listenerFD, instruction )) >= 0 )
 		{
 
 			int instrLen = strlen( instruction );
 
-			instruction[ instrLen - 2 ] = '\0';
+			instruction[ instrLen -= 2 ] = '\0';
 
-			printf( "Spawning:  \"%s\"\n", instruction );
-
-//			int i;
-//			for( i = 0; i < strlen( instruction ); i++ )
-//			{
-//				printf( " %x", instruction[i] );
-//			}
-//			printf( "\n" );
-
-			if( (instrLen = strlen( instruction )) == 1 && *instruction == 'q' )	// mostly for testing, but helpful to be able to exit safely
+			// if the client send "q", this safely terminates the server such that it can be resumed later.
+			if( (instrLen = strlen( instruction )) == 1 && *instruction == 'q' )
 			{
 				break;
 			}
 
-//			if( strcmp( "q", instruction ) == 0 )
-//			{
-//				break;
-//			}
+			// forks a process which uses the data from client to execute a program
+			spawnProcess( instruction );
 
-			spawnProcess( instruction );	// keep this isolated for now...
+			logEvent( "spawn complete\n===================================================\n" );
+//			sleep( 2 );	// sleeping this thread avoids overrunning the code	// may be causing problems
 			continue;
 		}
-
-
-//		while( (recReturnValue = receiveMessage( listenerFD, instruction )) >= 0 )
-//		{
-//			printf( "spawning: %s\n", instruction );
-//
-//			spawnProcess( instruction );
-//		}
 
 		switch( recReturnValue )
 		{
 			case LACCEPT_ERROR:
 			{
-				// TODO: perror(); printf(); etc. as may be neccessary
-				printf( "accept error\n" );
-				break;
+				logError( "Client connection not properly accepted" );
+				continue;
 			}
 			case LREAD_ERROR:
 			{
-				// TODO: same as LACCEPT_ERROR
-				printf( "read error\n" );
-				break;
+				logError( "Client data could not be read" );
+				continue;
 			}
 			case QUIT_PROGRAM:
 			{
-				keepGoing = FALSE;
-//				printf( "quit error (why is this still here?!)\n" );
+				logEvent( "Client transmitted server termination" );
 				break;
 			}
 			default:
 			{
-				printf( "this really shouldn't have executed\n" );
-				break;
+				logAll( "Unknown return value from receiveMessage()" );
+				continue;
 			}
 		}
 
 	}
 
+	// safely closes the socket such that subsequent executions of this program may use the same port
 	close( listenerFD );
 
-
- /*
- */
-	return 0;
+	return SUCCESS;
 
 }

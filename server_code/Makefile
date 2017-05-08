@@ -1,11 +1,13 @@
 all:
 	gcc Server.c Arg_Builder.c Server_Log.c Timestamp.c -o server
+	gcc Server_Wrapper.c -o wrapper
 
 clean:
 	rm server
+	rm wrapper
 
 run:
-	./server
+	./wrapper
 
 live: all run
 

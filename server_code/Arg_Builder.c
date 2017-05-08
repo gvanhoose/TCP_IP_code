@@ -1,10 +1,5 @@
 #include "Arg_Builder.h"
 
-//void dbug()
-//{
-//	printf( "Reaching\n" );
-//}
-
 /**
  * Returns the number of valid arguments given in a command line.
  *	treats consecutive spaces as a single space
@@ -13,11 +8,11 @@
 int get_nargs( char* rawArg, int argLength )
 {
 	int nargs = 0;
-	
+
 	char* end = rawArg + argLength;
-	
+
 	int spaceEncountered = TRUE;
-	
+
 	while( rawArg < end )
 	{
 		nargs += ( spaceEncountered & *rawArg != ' ' );
@@ -27,77 +22,43 @@ int get_nargs( char* rawArg, int argLength )
 	return nargs;
 }
 
+/**
+ * Parses a single string into char*[] format
+ * This allows compatibility between TCP data transmissions and the argument for calls to execv()
+ */
 void build_args( char* target[], char* rawArg, int argLength, int nargs )
 {
 	if( nargs == 0 )
 	{
 		return;
 	}
-	
+
 	char* end = rawArg-- + argLength;
-	
+
 	char toAdd, previous = ' ';
-	
+
 	char* current_string = *target;
-	
+
 	while( ++rawArg < end )
 	{
-		toAdd = ( *rawArg == ' ' )? '\0' : *rawArg;
-		
-		if( previous == '\0' && toAdd == '\0' )
+		toAdd = ( *rawArg == ' ' )? NULL_TERM : *rawArg;
+
+		if( previous == NULL_TERM && toAdd == NULL_TERM )
 		{
 			previous = toAdd;
 			continue;
 		}
-		
+
 		previous = toAdd;
-		
+
 		*(current_string++) = toAdd;
-		
-		if( toAdd == '\0' )
+
+		if( toAdd == NULL_TERM )
 		{
-			target += ( toAdd == '\0' );
-			
+			target += ( toAdd == NULL_TERM );
+
 			current_string = *target;
 		}
 	}
 
 }
-
-
-/**
- * For testing only!
- *
-int main()
-{
-	char* tester = "Hello World!  HEY YOU GUYSSSS! ! !";
-//	char* tester = "        ";
-//	char* tester = "";
-
-
-	int tLen = strlen( tester ), nargs = get_nargs( tester, tLen );
-
-	printf( "Test:\t\"%s\"\nnargs:\t%d\n", tester, nargs );
-
-	char* args [ nargs ];
-
-	int i;
-	for( i = 0; i < nargs; i++ )
-	{
-		args[i] = malloc( tLen + 1 );
-		memset( args[i], '\0', tLen + 1 );
-	}
-
-	build_args( args, tester, tLen, nargs );
-
-	printf( "Reading args:\n" );
-
-	for( i = 0; i < nargs; i++ )
-	{
-		printf( "\targs[%d] =\t\"%s\"\n", i, args[i] );
-	}
-	
-	return 0;
-}
- *
- */

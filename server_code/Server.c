@@ -21,7 +21,7 @@
 
 #define BUFFER_LENGTH		128
 #define DEFAULT_PORT_NUMBER	5000
-#define BACKLOG_MAX		1	// this is the maximum number of connections that the server can handle at any one time
+#define BACKLOG_MAX		5	// this is the maximum number of connections that the server can handle at any one time
 
 #define QUIT_CHAR	'q'
 #define NULL_CHAR	'\0'
@@ -79,19 +79,21 @@ int spawnProcess( char*  arg)
 	// fork fail
 	if( returnedPID  < 0 )
 	{
-		logAll( "Fork failed" );
+		logAll( "  Fork failed" );
 		return LFORK_FAIL;
 	}
 
 	// parent code
 	if( returnedPID > 0 )
 	{
+		wait();		// go with this until figure out why the following segment kept recording failure
+
 		// parent process execution
-		if( wait() != 0)		// may not need to wait, but we should take care to avoid the zombie apocalypse.
-		{
-			logAll( "Wait failed" );
-			return LWAIT_FAIL;
-		}
+//		if( wait() < 0)		// may not need to wait, but we should take care to avoid the zombie apocalypse.
+//		{
+//			logAll( "  Wait failed" );
+//			return LWAIT_FAIL;
+//		}
 		return SUCCESS;
 	}
 
@@ -103,7 +105,7 @@ int spawnProcess( char*  arg)
 
 	// if the following lines executes, then execv failed
 
-	char* errPrint = ("execv failed while attempting to execute:  %s", arg);
+	char* errPrint = ("  execv failed while attempting to execute:  %s", arg);
 
 	logError( errPrint );
 
@@ -215,7 +217,7 @@ int main( int argc, char* argv[] )
 	char pid_str [35];
 	memset( pid_str, '\0', 35 );
 
-	snprintf( pid_str, 35, "Server PID:  %d", getpid() );
+	snprintf( pid_str, 35, "  Server PID:  %d", getpid() );
 
 	logEvent( pid_str );
 
@@ -234,31 +236,31 @@ int main( int argc, char* argv[] )
 	// IMPORTANT:
 	//	If openSocketAndBind returns an error code, it is very possible that this program need only wait for the kernel to release the socket
 	//	therefore, the program is given infinite attempts at this functionality, since nothing else can happen anyway!
-	//	typical wait should be about one minute
+	//	typical wait should be about two minutes
 	//
-//	if( (listenerFD = openSocketAndBind( sockAddr )) < 0 )
 	while( (listenerFD = openSocketAndBind( sockAddr)) < 0 )
 	{
 		if( listenerFD == LSOCKET_ERROR )
 		{
-			logError( "Open socket error" );
+			logError( "  Open socket error" );
 		}
 		if( listenerFD == LBIND_ERROR );
 		{
-			logError( "Bind socket error" );
+			logError( " Bind socket error" );
 		}
 
 		sleep( 20 );			// sleeping for 20 seconds may give the OS enough time to clear out the error
 //		return SYSTEM_ERROR_NUMBER;	// remains commented-out while this is part of a while loop
 //		exit( SYSTEM_ERROR_NUMBER );
 	}
-	logEvent( "Socket ready" );
+
+	logEvent( "  Socket ready" );
 
 	char instruction [BUFFER_LENGTH];	// the buffer which will hold the data sent by the client
 
 	int recReturnValue;
 
-	listen( listenerFD, BACKLOG_MAX );	// moved from inside "receiveMessage(...)", since multiple calls might be causing server to crash
+//	listen( listenerFD, BACKLOG_MAX );	// moved from inside "receiveMessage(...)", since multiple calls might be causing server to crash
 
 	while( TRUE )
 	{
@@ -268,7 +270,7 @@ int main( int argc, char* argv[] )
 
 			int instrLen = strlen( instruction );
 
-			instruction[ instrLen -= 2 ] = '\0';
+			instruction[ instrLen -= 2 ] = '\0';	// may need to take this out.  Depends on how the UBTalker client code terminates the data
 
 			// if the client send "q", this safely terminates the server such that it can be resumed later.
 			if( (instrLen = strlen( instruction )) == 1 && *instruction == 'q' )
@@ -277,10 +279,36 @@ int main( int argc, char* argv[] )
 			}
 
 			// forks a process which uses the data from client to execute a program
-			spawnProcess( instruction );
+			switch( spawnProcess( instruction ) )
+			{
+				case LFORK_FAIL:
+				{
+					logError( "  Fork failed" );
+					break;
+				}
+				case LWAIT_FAIL:
+				{
+					logError( "  Wait failed" );
+					break;
+				}
+				case LEXECV_FAIL:
+				{
+					logError( "  Execv failed" );
+					break;
+				}
+				case SUCCESS:
+				{
+					logEvent( "  Spawn successfully executed" );
+					break;
+				}
+				default:
+				{
+					logError( "  Unknown return code from spawnProcess" );
+					break;
+				}
+			}
 
-			logEvent( "spawn complete\n===================================================\n" );
-//			sleep( 2 );	// sleeping this thread avoids overrunning the code	// may be causing problems
+			logEvent( "  spawn complete\n===================================================\n" );
 			continue;
 		}
 
@@ -288,23 +316,18 @@ int main( int argc, char* argv[] )
 		{
 			case LACCEPT_ERROR:
 			{
-				logError( "Client connection not properly accepted" );
-				continue;
+				logError( "  Client connection not properly accepted" );
+				break;
 			}
 			case LREAD_ERROR:
 			{
-				logError( "Client data could not be read" );
-				continue;
-			}
-			case QUIT_PROGRAM:
-			{
-				logEvent( "Client transmitted server termination" );
+				logError( "  Client data could not be read" );
 				break;
 			}
 			default:
 			{
-				logAll( "Unknown return value from receiveMessage()" );
-				continue;
+				logAll( "  Unknown return value from receiveMessage()" );
+				break;
 			}
 		}
 

@@ -10,10 +10,12 @@
 #define READ_ONLY	"r"
 #define WRITE_ONLY	"w"
 
-#define LOG_FILENAME	"Log_File.txt"
-//#define LOG_FILENAME	"~/Desktop/On_Startup/Log_File.txt"
-#define ERR_FILENAME	"Error_File.txt"
-//#define ERR_FILENAME	"~/Desktop/On_Startup/Error_File.txt"
+//#define LOG_FILENAME	"Log_File.txt"				// probably make this obsolete, or just keep it commented-out
+#define LOG_FILENAME	"~/Desktop/On_Startup/Log_File.txt"	// directory on CSE-453 Pi
+//#define LOG_FILENAME	"/home/pi/On_Startup/Log_File.txt"	// directory on George's at-home Pi
+//#define ERR_FILENAME	"Error_File.txt"
+#define ERR_FILENAME	"~/Desktop/On_Startup/Error_File.txt"	// directory on CSE-453 Pi
+//#define ERR_FILENAME	"/home/pi/On_Startup/Error_File.txt"	// directory on George's at-home Pi
 #define PROGRAM_ERROR		-1
 #define OPEN_ERROR		-2
 #define WRITE_ERROR		-3
